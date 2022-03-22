@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'iconbuttonsimple.dart';
+import 'editor.dart';
 
 enum TrayItemsEnum{
     explorer,
@@ -72,7 +73,6 @@ List<TrayItem> trayItems = const[
     ),   
 ];
 
-
 class Sidebar extends StatefulWidget {
     const Sidebar({ Key? key }) : super(key: key);
 
@@ -84,12 +84,20 @@ class _SidebarState extends State<Sidebar> {
 
     bool _isOpen = false;
     TrayItemsEnum? _currentItem = TrayItemsEnum.none;
+    final MultiSplitViewController _splitViewController = MultiSplitViewController(weights: [0.3, 0.7]);
 
     @override
     Widget build(BuildContext context){
         return 
         LayoutBuilder(
             builder: (context, constraints) {
+
+                var tray = Tray(
+                    key: UniqueKey(), 
+                    onPressed: _onItemClick, 
+                    currentItem: _currentItem,
+                );
+
                 if(_isOpen){
                     return 
                     MultiSplitViewTheme(
@@ -97,7 +105,7 @@ class _SidebarState extends State<Sidebar> {
                             children: [
                                 Row( 
                                     children: [
-                                        _buildTray(context),
+                                        tray,
                                         const Expanded(
                                             child: Panel()
                                         )
@@ -105,7 +113,7 @@ class _SidebarState extends State<Sidebar> {
                                 ),
                                 const Editor()
                             ],
-                            initialWeights: const [0.3, 0.7],
+                            controller: _splitViewController,
                             minimalWeight: 0.2,
                         ),
                         data: MultiSplitViewThemeData(
@@ -121,7 +129,7 @@ class _SidebarState extends State<Sidebar> {
                     return 
                     Row( 
                         children: [
-                            _buildTray(context),
+                            tray,
                             const Expanded(
                                 child: Editor()
                             )
@@ -132,7 +140,40 @@ class _SidebarState extends State<Sidebar> {
         );
     }
 
-    Widget _buildTray(BuildContext context) {
+    void _onItemClick(TrayItem item){
+        if(_currentItem == item.type){
+            _currentItem = TrayItemsEnum.none;
+            _isOpen = false;
+        }
+        else if(_currentItem == TrayItemsEnum.none){
+            _currentItem = item.type;
+            _isOpen = true;
+        }
+        else{
+            _currentItem = item.type;
+        }
+        
+        setState(() {});
+        
+        return;
+    }
+}
+
+class Tray extends StatelessWidget {
+    
+    /// callback for click handling of all buttons in the tray
+    final void Function(TrayItem item)? onPressed; 
+    /// current ative item on tray
+    final TrayItemsEnum? currentItem;
+
+    const Tray({ 
+        Key? key, 
+        this.onPressed,
+        this.currentItem = TrayItemsEnum.none,
+    }) : super(key: key);
+
+    @override
+    Widget build(BuildContext context) {
         return 
         Container(
             width: 50,
@@ -164,37 +205,19 @@ class _SidebarState extends State<Sidebar> {
     IconButtonSimple trayItemIconButton(
         BuildContext context, List<TrayItem> items, TrayItemsEnum item, double size
     ){
-        var trayitem = trayItems[item.index];
+        var trayItem = trayItems[item.index];
         return IconButtonSimple(
-            onPressed: () => _onItemClick(item), 
-            icon: trayitem.icon,
+            onPressed: (){
+                onPressed!(trayItem);
+            }, 
+            pressed: currentItem == item ? true : false,
+            icon: trayItem.icon,
             iconSize: size,
-        
-            tooltip: trayitem.tooltip,
-        
+            tooltip: trayItem.tooltip,
             padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
         );
     }
-
-    void _onItemClick(TrayItemsEnum item){
-        if(_currentItem == item){
-            _currentItem = TrayItemsEnum.none;
-            _isOpen = false;
-        }
-        else if(_currentItem == TrayItemsEnum.none){
-            _currentItem = item;
-            _isOpen = true;
-        }
-        else{
-            _currentItem = item;
-        }
-        
-        setState(() {});
-        
-        return;
-    }
 }
-
 
 class Panel extends StatelessWidget {
     const Panel({ Key? key }) : super(key: key);
@@ -211,15 +234,3 @@ class Panel extends StatelessWidget {
         );
     }
 }
-
-class Editor extends StatelessWidget {
-    const Editor({ Key? key }) : super(key: key);
-
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            color: Theme.of(context).colorScheme.background,
-        );
-    }
-}
-
