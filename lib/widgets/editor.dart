@@ -6,7 +6,15 @@ class Editor extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Container(
-            color: Theme.of(context).colorScheme.background,
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                border: Border(
+                    left: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 2,
+                    )
+                )
+            ),
         );
     }
 }

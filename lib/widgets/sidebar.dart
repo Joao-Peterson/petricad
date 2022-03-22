@@ -117,10 +117,10 @@ class _SidebarState extends State<Sidebar> {
                             minimalWeight: 0.2,
                         ),
                         data: MultiSplitViewThemeData(
-                            dividerThickness: 4,
+                            dividerThickness: 6,
                             dividerPainter: DividerPainters.background(
                                 color:              Theme.of(context).colorScheme.primary,
-                                highlightedColor:   Theme.of(context).colorScheme.onPrimary
+                                highlightedColor:   Theme.of(context).colorScheme.onPrimary,
                             )
                         )
                     );
