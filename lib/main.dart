@@ -1,11 +1,23 @@
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
-import 'platforminfo.dart';
+import 'src/platforminfo.dart';
+import 'dart:io';
+import 'src/filemgr.dart';
 import 'themes/dark.dart';
 import 'widgets/toolbar.dart';
 import 'widgets/sidebar.dart';
 
 void main() async{
+
+    Filemgr fileMgr = Filemgr();
+    await fileMgr.addStdDir();
+    await fileMgr.addNewFile("config.json", "std");
+    await fileMgr.addLogFile("log.txt", "std");
+
+    await fileMgr.logInfo("Hi");
+    await fileMgr.logWarning("Watch out");
+    await fileMgr.logError("RUNNNN!!@@^^^^^~~~~~~");
+
     // make sure to initialize the framework binding before DesktopWindow calls
     WidgetsFlutterBinding.ensureInitialized();
 
