@@ -10,7 +10,7 @@ class Toolbar extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
-                border: Border(bottom: BorderSide(width: 1.5, color: Theme.of(context).dividerColor))
+                border: Border(bottom: BorderSide(width: 1, color: Theme.of(context).dividerColor))
             ),
         );
     }

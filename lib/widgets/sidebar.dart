@@ -196,7 +196,7 @@ class Tray extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 border: Border(
-                    right: BorderSide(width: 1.5, color: Theme.of(context).dividerColor),
+                    right: BorderSide(width: 1, color: Theme.of(context).dividerColor),
                 )
             ),
 

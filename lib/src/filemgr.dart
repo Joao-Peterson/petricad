@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'dart:convert';
 
 import 'platforminfo.dart';
 
@@ -12,12 +12,14 @@ class Filemgr{
     static const String _windowsHome   = "HOMEPATH";
     static const String _linuxHome     = "HOME";
 
-    File? _logFile;
+    RandomAccessFile? _logFile;
 
     // constructor
     Filemgr();
 
-    // add new diretory path
+    // -------------------------------------- Dirs utilities ---------------------- //
+
+    // add standard directory path
     addStdDir() async{
         Map<String, String> envVars = Platform.environment;
         String path;
@@ -47,8 +49,39 @@ class Filemgr{
         _dirs["std"] = path;
     } 
 
+    // add new directory
+    addDir(String dirKey, String dirPath) async {
+        if(!(await Directory(dirPath).exists())){
+            await Directory(dirPath).create();
+        }
+
+        _dirs[dirKey] = dirPath;
+    }
+
+    // add dir to a parent dir
+    addDirToDir(String dirKey, String dirPath, String parentDirKey) async {
+        String? parent = _dirs[parentDirKey];
+        String path;
+        
+        if(parent != null){
+            path = p.join(parent, dirPath);
+        }
+        else{
+            return;
+        }
+
+        await addDir(dirKey, path);
+    }
+
+    // get the dir path
+    String? getDirPath(String dirKey){
+        return _dirs[dirKey];
+    }
+
+    // -------------------------------------- File utilities ---------------------- //
+
     // add new file to track
-    addNewFile(String filename, String dirKey) async {
+    addNewFile(String key, String filename, String dirKey, {String? defaultContent}) async {
 
         String path;
 
@@ -56,51 +89,65 @@ class Filemgr{
             return;
         }
         else{
-            path = _dirs[dirKey] ?? ''; 
+            path = _dirs[dirKey]!; 
         }
 
         path = p.join(path, filename);
-        _files[filename] = path;
+        _files[key] = path;
 
         File file = File(path);
         if(!(await file.exists())){
-            file.create();
+            await file.create();
+
+            if(defaultContent != null){
+                await file.writeAsString(defaultContent, mode: FileMode.write);
+            }
         }
     }
 
+    // get file path by name
+    String? getFilePath(String filename){
+        return _files[filename];
+    }
+
+    // -------------------------------------- Log utilities ----------------------- //
+
     // add log file
-    addLogFile(String filename, String dirKey) async {
+    addLogFile(String key, String filename, String dirKey) async {
         String path;
 
         if(_dirs[dirKey] == null){
             return;
         }
         else{
-            path = _dirs[dirKey] ?? ''; 
+            path = _dirs[dirKey]!; 
         }
 
         path = p.join(path, filename);
-        _files[filename] = path;
+        _files[key] = path;
 
         File file = File(path);
         if(!(await file.exists())){
             file.create();
         }        
 
-        _logFile = file;
+        file.writeAsString("", mode: FileMode.write);
+        _logFile = await file.open(mode: FileMode.append);
         // clear file
-        _logFile?.writeAsString("", mode: FileMode.write);
     }
 
-    logInfo(String message) async{
-        await _logFile?.writeAsString("[INFO] " + message + "\n", mode: FileMode.append);
+    // log to the log file with an info tag
+    logInfo(String message){
+        _logFile?.writeStringSync("[INFO   ] " + message + "\n");
     }
 
-    logWarning(String message) async{
-        await _logFile?.writeAsString("[WARNING] "+message + "\n", mode: FileMode.append);
+    // log to the log file with an warning tag
+    logWarning(String message){
+        _logFile?.writeStringSync("[WARNING] " + message + "\n");
     }
 
-    logError(String message) async{
-        await _logFile?.writeAsString("[ERROR] "+message + "\n", mode: FileMode.append);
+    // log to the log file with an error tag
+    logError(String message){
+        _logFile?.writeStringSync("[ERROR  ] " + message + "\n");
     }
 }
