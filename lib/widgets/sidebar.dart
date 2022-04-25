@@ -230,6 +230,8 @@ class Tray extends StatelessWidget {
             iconSize: size,
             tooltip: trayItem.tooltip,
             padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+            color: Theme.of(context).iconTheme.color,
+            highlightColor: Theme.of(context).highlightColor,
         );
     }
 }
