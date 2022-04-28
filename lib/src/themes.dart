@@ -49,6 +49,17 @@ class ThemesProvider extends ChangeNotifier{
         return _themes[_activeThemeKey] ?? (_themes[_defaultThemeKey]!);
     }
 
+    // get theme list
+    List<String> getThemeNameList(){
+        List<String> list = [];
+
+        for(var theme in _themes.keys){
+            list.add(theme);
+        }
+        
+        return list;
+    }
+
     // constructor
     ThemesProvider({required String themesDir}){
         if(!(Directory(themesDir).existsSync())){

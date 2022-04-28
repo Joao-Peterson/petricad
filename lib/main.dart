@@ -73,7 +73,8 @@ class App extends StatelessWidget {
                         Statusbar()
                     ],)
                 ),
-                actions: 
+                config: buildCommandConfig(Provider.of<ThemesProvider>(context)),
+                actions: buildCommandList(Provider.of<ThemesProvider>(context)),
             )
         );
     }

@@ -1,3 +1,4 @@
+import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
 
 class Toolbar extends StatelessWidget {
@@ -17,20 +18,16 @@ class Toolbar extends StatelessWidget {
                 children: [
                     Container(
                         child: PopupMenuButton<String>(
-                            child: const Text("Settings"),
+                            child: const Text("Tools"),
                             itemBuilder: (context) {
                                 return [
                                     const PopupMenuItem(
-                                        child: Text("Visual"),
+                                        child: Text("Command palette"),
+                                        value: "Command palette",
                                         height: 0,
                                         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                                     ),
-                                    const PopupMenuDivider(height: 1),
-                                    const PopupMenuItem(
-                                        child: Text("FF"),
-                                        height: 0,
-                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                                    ),
+                                    // const PopupMenuDivider(height: 1),
                                 ];
                             },
                             offset: Offset.zero,
@@ -39,6 +36,14 @@ class Toolbar extends StatelessWidget {
                             shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.zero,
                             ),
+                            onSelected: (item){
+                                switch (item) {
+                                    case "Command palette":
+                                        CommandPalette.of(context).open();   
+                                    break;
+                                }
+                            },
+                            tooltip: "Tools",
                         ),
                         alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(horizontal: 10),
