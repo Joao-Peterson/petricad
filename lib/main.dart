@@ -3,10 +3,12 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:command_palette/command_palette.dart';
 import 'src/platforminfo.dart';
 import 'src/filemgr.dart';
 import 'src/config.dart';
 import 'src/themes.dart';
+import 'src/commands.dart';
 import 'widgets/toolbar.dart';
 import 'widgets/sidebar.dart';
 import 'widgets/statusbar.dart';
@@ -59,17 +61,20 @@ class App extends StatelessWidget {
         return MaterialApp(
             title: "PetriCAD",
 
-            theme: Provider.of<ThemesProvider>(context).getTheme().materialThemeData,
+            theme: Provider.of<ThemesProvider>(context).getTheme().libThemeData,
 
-            home: Scaffold(
-                body: Column(children: const [
-                    Toolbar(),
-                    Expanded(
-                        child: Sidebar()
-                    ),
-                    Statusbar()
-                ],)
-            ),
+            home: CommandPalette(
+                child: Scaffold(
+                    body: Column(children: const [
+                        Toolbar(),
+                        Expanded(
+                            child: Sidebar()
+                        ),
+                        Statusbar()
+                    ],)
+                ),
+                actions: 
+            )
         );
     }
 }

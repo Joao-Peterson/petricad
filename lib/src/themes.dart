@@ -6,10 +6,10 @@ import 'filemgr.dart';
 import 'default-vscode-theme.dart';
 
 class ThemesTheme{
-    ThemeData materialThemeData;
+    ThemeData libThemeData;
 
     ThemesTheme({
-        required this.materialThemeData
+        required this.libThemeData
     });
 }
 
@@ -88,7 +88,7 @@ class ThemesProvider extends ChangeNotifier{
 
             // save theme in array with the key same as "name" in json or filename without extension
             _themes[name] = ThemesTheme(
-                materialThemeData: ThemeData(
+                libThemeData: ThemeData(
 
                     brightness: theme["type"] == "dark" ? Brightness.dark : Brightness.light,
                     // appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
