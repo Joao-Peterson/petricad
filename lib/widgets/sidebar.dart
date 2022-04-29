@@ -126,7 +126,7 @@ class _SidebarState extends State<Sidebar> {
                                         )
                                     ],
                                 ),
-                                const Editor()
+                                const Editor(leftBorderActive: true)
                             ],
                             controller: _splitViewController,
                             minimalWeight: 0.2,

@@ -41,14 +41,14 @@ void main() async{
         await DesktopWindow.setMinWindowSize(const Size(500, 500));
     }
 
+    var configProvider = ConfigProvider(filename: configPath);
+    var themeProvider  = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme"));
+
     runApp(
         MultiProvider(
             providers: [
-                ChangeNotifierProvider(create: (context) => ConfigProvider(filename: configPath)),
-                ChangeNotifierProvider(create: (context) => ThemesProvider(
-                    themesDir: themesDir, 
-                    startTheme: "Nanowise"
-                )),
+                ChangeNotifierProvider(create: (context) {return configProvider;}),
+                ChangeNotifierProvider(create: (context) {return themeProvider;}),
             ],
             child: const App()
         )
@@ -61,6 +61,7 @@ class App extends StatelessWidget {
 
     @override
     Widget build(BuildContext context) {
+        
         return MaterialApp(
             title: "PetriCAD",
 
@@ -68,6 +69,7 @@ class App extends StatelessWidget {
 
             home: Builder(
                 builder: (context) {
+
                     return CommandPalette(
                         child: Scaffold(
                             body: Column(children: const [

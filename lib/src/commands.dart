@@ -1,6 +1,7 @@
 import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:petricad/src/config.dart';
 import 'package:provider/provider.dart';
 import 'themes.dart';
 
@@ -9,13 +10,14 @@ List<CommandPaletteAction> buildCommandList(BuildContext context){
         CommandPaletteAction(
             label: "Change color theme",
             actionType: CommandPaletteActionType.nested,
-            childrenActions: _buildThemeList(Provider.of<ThemesProvider>(context))
+            childrenActions: _buildThemeList(context)
         )
     ];
 }
 
-List<CommandPaletteAction> _buildThemeList(ThemesProvider provider){
+List<CommandPaletteAction> _buildThemeList(BuildContext context){
     List<CommandPaletteAction> list = [];
+    var provider = Provider.of<ThemesProvider>(context, listen: false);
     var themeList = provider.getThemeNameList();
 
     for(var theme in themeList){
@@ -25,6 +27,8 @@ List<CommandPaletteAction> _buildThemeList(ThemesProvider provider){
                 actionType: CommandPaletteActionType.single,
                 onSelect: () {
                     provider.setTheme(theme);
+                    Provider.of<ConfigProvider>(context, listen: false).setConfig<String>("visual.theme", theme);
+                    Provider.of<ConfigProvider>(context, listen: false).save();
                 }
             )
         );

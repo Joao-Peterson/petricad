@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Editor extends StatelessWidget {
-    const Editor({ Key? key }) : super(key: key);
+
+    final bool leftBorderActive;
+    
+    const Editor({ 
+        this.leftBorderActive = false,
+        Key? key 
+    }) : super(key: key);
 
     @override
     Widget build(BuildContext context) {
@@ -11,7 +17,7 @@ class Editor extends StatelessWidget {
                 border: Border(
                     left: BorderSide(
                         color: Theme.of(context).dividerColor,
-                        width: 2,
+                        width: leftBorderActive ? 2 : 0,
                     )
                 )
             ),

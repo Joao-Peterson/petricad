@@ -93,8 +93,7 @@ class ThemesProvider extends ChangeNotifier{
 
             var name = theme["name"] ?? p.basenameWithoutExtension(file.path);
 
-            
-
+        
             // save theme in array with the key same as "name" in json or filename without extension
             _themes[name] = ThemesTheme(
                 libThemeData: ThemeData(
