@@ -16,37 +16,40 @@ class Toolbar extends StatelessWidget {
 
             child: Row(
                 children: [
-                    Container(
-                        child: PopupMenuButton<String>(
-                            child: const Text("Tools"),
-                            itemBuilder: (context) {
-                                return [
-                                    const PopupMenuItem(
-                                        child: Text("Command palette"),
-                                        value: "Command palette",
-                                        height: 0,
-                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                                    ),
-                                    // const PopupMenuDivider(height: 1),
-                                ];
-                            },
-                            offset: Offset.zero,
-                            elevation: 0,
-                            padding: const EdgeInsets.all(0),
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
+                    DefaultTextStyle(
+                        style: Theme.of(context).textTheme.button!,
+                        child: Container(
+                            child: PopupMenuButton<String>(
+                                child: const Text("Tools"),
+                                itemBuilder: (context) {
+                                    return [
+                                        const PopupMenuItem(
+                                            child: Text("Command palette"),
+                                            value: "Command palette",
+                                            height: 0,
+                                            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                                        ),
+                                        // const PopupMenuDivider(height: 1),
+                                    ];
+                                },
+                                offset: Offset.zero,
+                                elevation: 0,
+                                padding: const EdgeInsets.all(0),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                ),
+                                onSelected: (item){
+                                    switch (item) {
+                                        case "Command palette":
+                                            CommandPalette.of(context).open();   
+                                        break;
+                                    }
+                                },
+                                tooltip: "Tools",
                             ),
-                            onSelected: (item){
-                                switch (item) {
-                                    case "Command palette":
-                                        CommandPalette.of(context).open();   
-                                    break;
-                                }
-                            },
-                            tooltip: "Tools",
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                         ),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
                     )
                 ],
             )

@@ -19,11 +19,7 @@ class ThemesProvider extends ChangeNotifier{
     Map<String, ThemesTheme> _themes = {};
 
     // default theme
-    // static const String _defaultThemeKey = "Light (Visual Studio)";
-    static const String _defaultThemeKey = "Nanowise";
-    // static const String _defaultThemeKey = "Monokai";
-    // static const String _defaultThemeKey = "Owlet (Palenight)";
-    // static const String _defaultThemeKey = "GitHub Dark Dimmed";
+    static const String _defaultThemeKey = "Owlet (Palenight)";
 
     // current theme
     String _activeThemeKey = _defaultThemeKey;
@@ -61,10 +57,12 @@ class ThemesProvider extends ChangeNotifier{
     }
 
     // constructor
-    ThemesProvider({required String themesDir}){
+    ThemesProvider({required String themesDir, required String startTheme}){
         if(!(Directory(themesDir).existsSync())){
             exit(-1);
         }
+
+        _activeThemeKey = startTheme;
 
         // for every json theme file in the themes directory
         for(var file in Directory(themesDir).listSync(followLinks: false, recursive: false)){
@@ -122,9 +120,9 @@ class ThemesProvider extends ChangeNotifier{
 
                     tooltipTheme: TooltipThemeData(
                         textStyle: TextStyle(
-                            color: _getThemeColor(theme,"activityBar.foreground"),
+                            color: _getThemeColor(theme,"editor.foreground"),
                             fontSize: 13.0,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.normal,
                             letterSpacing: 0
                         ),
                         decoration: BoxDecoration(
@@ -144,6 +142,7 @@ class ThemesProvider extends ChangeNotifier{
 
                         background: _getThemeColor(theme,"editor.background"),
                         onBackground: _getThemeColor(theme,"editor.foreground"),
+                        inversePrimary: _getThemeColor(theme,"list.highlightForeground"),
 
                         primary: _getThemeColor(theme,"sideBar.background"),
                         onPrimary: _getThemeColor(theme,"sideBar.foreground"),
@@ -151,33 +150,50 @@ class ThemesProvider extends ChangeNotifier{
                         secondary: _getThemeColor(theme,"statusBar.background"),
                         onSecondary: _getThemeColor(theme,"statusBar.background"),
 
-                        surface: _getThemeColor(theme,"statusBar.background"),
-                        onSurface: _getThemeColor(theme,"statusBar.background"),
+                        tertiary: _getThemeColor(theme,"list.activeSelectionBackground"),
+                        onTertiary: _getThemeColor(theme,"list.activeSelectionForeground"),
+
+                        surface: _getThemeColor(theme,"editor.background"),
+                        onSurface: _getThemeColor(theme,"editor.foreground"),
 
                     ),
-                    
+
+                    inputDecorationTheme: InputDecorationTheme(
+                        filled: true,
+                        fillColor: _getThemeColor(theme,"editor.background"),
+
+                        hintStyle: TextStyle(
+                            color: _getThemeColor(theme,"editor.foreground"),
+                            fontSize: 13.0,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.normal
+                        ),
+                        labelStyle: TextStyle(
+                            color: _getThemeColor(theme,"editor.foreground"),
+                            fontSize: 13.0,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.normal
+                        ),
+                    ),
+
                     textTheme: TextTheme(
-                        headline2: TextStyle(
+                        button: TextStyle(
                             color: _getThemeColor(theme,"editor.foreground"),
-                            fontSize: 32.0,
-                            fontWeight: FontWeight.bold
+                            fontSize: 13.0,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.normal
                         ),
-                        headline4: TextStyle(
+                        subtitle1: TextStyle(
                             color: _getThemeColor(theme,"editor.foreground"),
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 2.0
+                            fontSize: 13.0,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.normal
                         ),
-                        bodyText1: TextStyle(
+                        subtitle2: TextStyle(
                             color: _getThemeColor(theme,"editor.foreground"),
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.0
+                            fontSize: 10.0,
+                            fontWeight: FontWeight.normal
                         ),
-                        bodyText2: TextStyle(
-                            color: _getThemeColor(theme,"editor.foreground"),
-                            letterSpacing: 1.0
-                        )
                     )
                 )
             );
@@ -188,16 +204,20 @@ class ThemesProvider extends ChangeNotifier{
 
     // converto color in hex string "#ffffff" to integer
     Color _hex2Color(String hex){
+        int num = 0;
+        
         // #FFFFFFFF case
-        if(hex.length >= 9){
+        if(hex.length >= 8){
             hex = hex.replaceAll("#", "");
+            num = int.parse(hex, radix:16);
+            num = ((0xffffff00 & num) >> 8) | ((0x000000ff & num) << 3*8);
         }
         // #FFFFFF case
         else{
             hex = hex.replaceAll("#", "FF");
+            num = int.parse(hex, radix:16);
         }
         
-        var num = int.parse(hex, radix:16);
         return Color(num);
     }
 

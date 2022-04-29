@@ -103,12 +103,12 @@ class _SidebarState extends State<Sidebar> {
                 );
 
 
-                Widget? panel_child; 
+                Widget? panelChild; 
                 if (_currentItem == null || _currentItem == TrayItemsEnum.none){
-                    panel_child = null;
+                    panelChild = null;
                 }
                 else{
-                    panel_child = trayItems[(_currentItem ?? TrayItemsEnum.none).index].widget;
+                    panelChild = trayItems[(_currentItem ?? TrayItemsEnum.none).index].widget;
                 }
 
                 if(_isOpen){
@@ -121,7 +121,7 @@ class _SidebarState extends State<Sidebar> {
                                         tray,
                                         Expanded(
                                             child: Panel(
-                                                child: panel_child,
+                                                child: panelChild,
                                             )
                                         )
                                     ],

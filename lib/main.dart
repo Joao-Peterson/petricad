@@ -45,7 +45,10 @@ void main() async{
         MultiProvider(
             providers: [
                 ChangeNotifierProvider(create: (context) => ConfigProvider(filename: configPath)),
-                ChangeNotifierProvider(create: (context) => ThemesProvider(themesDir: themesDir)),
+                ChangeNotifierProvider(create: (context) => ThemesProvider(
+                    themesDir: themesDir, 
+                    startTheme: "Nanowise"
+                )),
             ],
             child: const App()
         )
@@ -63,18 +66,22 @@ class App extends StatelessWidget {
 
             theme: Provider.of<ThemesProvider>(context).getTheme().libThemeData,
 
-            home: CommandPalette(
-                child: Scaffold(
-                    body: Column(children: const [
-                        Toolbar(),
-                        Expanded(
-                            child: Sidebar()
+            home: Builder(
+                builder: (context) {
+                    return CommandPalette(
+                        child: Scaffold(
+                            body: Column(children: const [
+                                Toolbar(),
+                                Expanded(
+                                    child: Sidebar()
+                                ),
+                                Statusbar()
+                            ],)
                         ),
-                        Statusbar()
-                    ],)
-                ),
-                config: buildCommandConfig(Provider.of<ThemesProvider>(context)),
-                actions: buildCommandList(Provider.of<ThemesProvider>(context)),
+                        config: buildCommandConfig(context),
+                        actions: buildCommandList(context),
+                    );
+                }
             )
         );
     }
