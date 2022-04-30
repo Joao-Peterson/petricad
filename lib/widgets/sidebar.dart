@@ -1,3 +1,4 @@
+import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'iconbuttonsimple.dart';
@@ -77,8 +78,12 @@ List<TrayItem> trayItems = [
     ),   
 ];
 
+// sidebar with editor, expads the whole screen width
 class Sidebar extends StatefulWidget {
-    const Sidebar({ Key? key }) : super(key: key);
+
+    const Sidebar({ 
+        Key? key 
+    }) : super(key: key);
 
     @override
     State<Sidebar> createState() => _SidebarState();
@@ -135,7 +140,7 @@ class _SidebarState extends State<Sidebar> {
                             dividerThickness: 6,
                             dividerPainter: DividerPainters.background(
                                 color:              Theme.of(context).colorScheme.primary,
-                                highlightedColor:   Theme.of(context).colorScheme.onPrimary,
+                                highlightedColor:   Theme.of(context).colorScheme.tertiary,
                             )
                         )
                     );
@@ -174,6 +179,7 @@ class _SidebarState extends State<Sidebar> {
     }
 }
 
+// just the sidebar, a tray to hold buttons
 class Tray extends StatelessWidget {
     
     /// callback for click handling of all buttons in the tray
@@ -202,13 +208,28 @@ class Tray extends StatelessWidget {
 
             child: Column(
                 children: [
-                    trayItemIconButton(context, trayItems, TrayItemsEnum.explorer,  27),
-                    trayItemIconButton(context, trayItems, TrayItemsEnum.search,    27),
-                    trayItemIconButton(context, trayItems, TrayItemsEnum.tools,     27),
-                    trayItemIconButton(context, trayItems, TrayItemsEnum.debug,     27),
+                    trayItemIconButton(context, TrayItemsEnum.explorer,  27),
+                    trayItemIconButton(context, TrayItemsEnum.search,    27),
+                    trayItemIconButton(context, TrayItemsEnum.tools,     27),
+                    trayItemIconButton(context, TrayItemsEnum.debug,     27),
                     Expanded(
                         child: Align(
-                            child: trayItemIconButton(context, trayItems, TrayItemsEnum.settings, 25),
+                            child: Builder(
+                                builder: (context) {
+                                    var item = trayItems[TrayItemsEnum.settings.index];
+                                    return IconButtonSimple(
+                                        icon: item.icon, 
+                                        iconSize: 25,
+                                        tooltip: item.tooltip,
+                                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+                                        color: Theme.of(context).iconTheme.color,
+                                        highlightColor: Theme.of(context).highlightColor,
+                                        onPressed: (){
+                                            CommandPalette.of(context).open();
+                                        }
+                                    );
+                                }
+                            ),
                             alignment: Alignment.bottomCenter,
                         ),
                     )
@@ -218,7 +239,7 @@ class Tray extends StatelessWidget {
     }
 
     IconButtonSimple trayItemIconButton(
-        BuildContext context, List<TrayItem> items, TrayItemsEnum item, double size
+        BuildContext context, TrayItemsEnum item, double size
     ){
         var trayItem = trayItems[item.index];
         return IconButtonSimple(
@@ -236,6 +257,7 @@ class Tray extends StatelessWidget {
     }
 }
 
+// the panel that opens with the sidebar button click
 class Panel extends StatelessWidget {
     final Widget? child;
     

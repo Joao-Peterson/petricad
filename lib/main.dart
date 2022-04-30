@@ -8,7 +8,7 @@ import 'src/platforminfo.dart';
 import 'src/filemgr.dart';
 import 'src/config.dart';
 import 'src/themes.dart';
-import 'src/commands.dart';
+import 'src/command_palette_config.dart';
 import 'widgets/toolbar.dart';
 import 'widgets/sidebar.dart';
 import 'widgets/statusbar.dart';

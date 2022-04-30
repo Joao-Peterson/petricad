@@ -57,13 +57,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.2"
-  desktop:
-    dependency: "direct main"
-    description:
-      name: desktop
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.1.5"
   desktop_drop:
     dependency: "direct main"
     description:
