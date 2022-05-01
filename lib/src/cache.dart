@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'dart:io';
 
-class ConfigProvider extends ChangeNotifier{
-    late Map<String, dynamic> _config;
+class CacheProvider extends ChangeNotifier{
+    late Map<String, dynamic> _cache;
     late String _filename; 
 
-    ConfigProvider({required String filename}){
+    CacheProvider({required String filename}){
         File json = File(filename);
         String jsonString = json.readAsStringSync();
 
@@ -22,24 +22,22 @@ class ConfigProvider extends ChangeNotifier{
             (Match m) => "${m[1]}"
         );
         
-        _config = jsonDecode(jsonString);
-
+        _cache = jsonDecode(jsonString);
         _filename = filename;
     }
 
-    setConfig<T>(String configName, T value){
-        _setNestedMapValue<T>(_config, configName, value);
+    setValue<T>(String configName, T value){
+        _setNestedMapValue<T>(_cache, configName, value);
         _save();
         notifyListeners();
     }
 
-    T? getConfig<T>(String configName){
-        return _getNestedMapValue<T>(_config, configName);
+    T? getValue<T>(String configName){
+        return _getNestedMapValue<T>(_cache, configName);
     }
-
-    // save to _filename
+    
     _save() {
-        File(_filename).writeAsStringSync(jsonEncode(_config));
+        File(_filename).writeAsStringSync(jsonEncode(_cache), mode: FileMode.writeOnly);
     }
 
     // get nested value in nested maps of type "Map<String, dynamic>", using a string syntax like "value.subvalue.array[5].someValue"
@@ -49,7 +47,7 @@ class ConfigProvider extends ChangeNotifier{
         if(keys.isEmpty || nestedMap.isEmpty){
             return null;
         }
-        
+
         dynamic value = nestedMap;
         // for every key in the dot separated keys 
         for(var key in keys){
@@ -101,4 +99,5 @@ class ConfigProvider extends ChangeNotifier{
             }
         }
     }
+
 }

@@ -1,6 +1,8 @@
 import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
+import 'package:petricad/src/cache.dart';
+import 'package:provider/provider.dart';
 import 'iconbuttonsimple.dart';
 import 'editor.dart';
 import 'explorer.dart';
@@ -14,20 +16,22 @@ enum TrayItemsEnum{
     none
 }
 
-class TrayItem{
+class TrayItem{    
+    // members
+    final TrayItemsEnum type;
+    final Icon icon;
+    final String tooltip;
+    final List<String>? shortcut;
+    Widget? widget;
+
     // constructor
     TrayItem({
         required this.type, 
         required this.icon, 
         required this.tooltip,
         this.widget,
+        this.shortcut,
     });
-    
-    // members
-    final TrayItemsEnum type;
-    final Icon icon;
-    final String tooltip;
-    Widget? widget;
 }
 
 List<TrayItem> trayItems = [
@@ -38,6 +42,7 @@ List<TrayItem> trayItems = [
             Icons.folder_open_outlined,
         ),
         tooltip: "File explorer",
+        shortcut: ["ctrl", "shift", "e"],
         widget: const Explorer(), 
     ),   
     
@@ -97,8 +102,18 @@ class _SidebarState extends State<Sidebar> {
 
     @override
     Widget build(BuildContext context){
-        return 
-        LayoutBuilder(
+
+        int sidebarActionIndex = Provider.of<CacheProvider>(context).getValue<int>("sidebarAction") ?? TrayItemsEnum.none.index;
+        _currentItem = TrayItemsEnum.values.elementAt(sidebarActionIndex);
+        _isOpen = Provider.of<CacheProvider>(context).getValue<bool>("sidebarIsOpen") ?? false;
+        
+        // sidebar must be closed with currentItem == none
+        // because the toggle logic will leave selected items with the sidebar closed
+        if(!_isOpen && _currentItem != TrayItemsEnum.none){
+            _currentItem = TrayItemsEnum.none;
+        }
+
+        return LayoutBuilder(
             builder: (context, constraints) {
 
                 var tray = Tray(
@@ -171,8 +186,12 @@ class _SidebarState extends State<Sidebar> {
         }
         else{
             _currentItem = item.type;
+            _isOpen = true;
         }
         
+        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", item.type.index);
+        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", _isOpen);
+
         setState(() {});
         
         return;

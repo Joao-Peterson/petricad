@@ -17,7 +17,7 @@ class Editor extends StatelessWidget {
                 border: Border(
                     left: BorderSide(
                         color: Theme.of(context).dividerColor,
-                        width: leftBorderActive ? 2 : 0,
+                        width: leftBorderActive ? 1 : 0,
                     )
                 )
             ),

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:petricad/src/cache.dart';
 import 'package:provider/provider.dart';
 import 'package:command_palette/command_palette.dart';
 import 'src/platforminfo.dart';
@@ -23,6 +24,7 @@ void main() async{
     await fileMgr.addStdDir();
     await fileMgr.addLogFile("log", "log.txt", "std");
     await fileMgr.addNewFile("config", "config.json", "std", defaultContent: await rootBundle.loadString("assets/config.json"));
+    await fileMgr.addNewFile("cache", "cache.json", "std", defaultContent: await rootBundle.loadString("assets/cache.json"));
     await fileMgr.addDirToDir("themes", "themes/", "std");
     await fileMgr.addNewFile("owlet-palenight", "owlet-theme-palenight.json", "themes", 
         defaultContent: await rootBundle.loadString("assets/themes/owlet-theme-palenight.json")
@@ -30,8 +32,13 @@ void main() async{
 
     // get paths for config and themes
     String? configPath = fileMgr.getFilePath("config");
+    String? cachePath = fileMgr.getFilePath("cache");
     String? themesDir = fileMgr.getDirPath("themes");
-    if(configPath == null || themesDir == null){
+    if(
+        configPath == null || 
+        themesDir == null ||
+        cachePath == null
+    ){
         exit(-1);
     }
 
@@ -42,13 +49,15 @@ void main() async{
     }
 
     var configProvider = ConfigProvider(filename: configPath);
-    var themeProvider  = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme"));
+    var cacheProvider = CacheProvider(filename: cachePath);
+    var themeProvider  = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme") ?? "Owlet (Palenight)");
 
     runApp(
         MultiProvider(
             providers: [
                 ChangeNotifierProvider(create: (context) {return configProvider;}),
                 ChangeNotifierProvider(create: (context) {return themeProvider;}),
+                ChangeNotifierProvider(create: (context) {return cacheProvider;}),
             ],
             child: const App()
         )

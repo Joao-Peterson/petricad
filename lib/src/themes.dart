@@ -250,13 +250,13 @@ class ThemesProvider extends ChangeNotifier{
                 treeViewThemeData: TreeViewTheme(
                     expanderTheme: ExpanderThemeData(
                         type: ExpanderType.chevron,
-                        color: _getThemeColor(theme,"editor.foreground"),
+                        color: _getThemeColor(theme,"icon.foreground"),
                         size: 20,
                     ),
                     iconPadding: 5,
                     iconTheme: IconThemeData(
                         size: 20,
-                        color: _getThemeColor(theme,"editor.foreground"),
+                        color: _getThemeColor(theme,"icon.foreground"),
                     ),
                     verticalSpacing: 2,
                     labelStyle: TextStyle(
