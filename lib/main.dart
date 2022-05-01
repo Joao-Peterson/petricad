@@ -2,9 +2,12 @@ import 'dart:io';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:provider/provider.dart';
 import 'package:command_palette/command_palette.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'src/platforminfo.dart';
 import 'src/filemgr.dart';
 import 'src/config.dart';
@@ -55,6 +58,7 @@ void main() async{
     runApp(
         MultiProvider(
             providers: [
+                ChangeNotifierProvider(create: (context) {return fileMgr;}),
                 ChangeNotifierProvider(create: (context) {return configProvider;}),
                 ChangeNotifierProvider(create: (context) {return themeProvider;}),
                 ChangeNotifierProvider(create: (context) {return cacheProvider;}),
@@ -73,8 +77,25 @@ class App extends StatelessWidget {
         
         return MaterialApp(
             title: "PetriCAD",
-
             theme: Provider.of<ThemesProvider>(context).getTheme().libThemeData,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localeResolutionCallback: (locale, supportedLocales){
+                for(var supportedLocale in supportedLocales){
+                    if(
+                        locale?.languageCode == supportedLocale.languageCode &&
+                        locale?.countryCode == supportedLocale.countryCode
+                    ){
+                        return supportedLocale;
+                    }
+                }
+                return supportedLocales.first;
+            },
+            locale: Locale.fromSubtags(
+                languageCode: Provider.of<ConfigProvider>(context).getConfig("locale.languageCode"),
+                countryCode: Provider.of<ConfigProvider>(context).getConfig("locale.countryCode"),
+                scriptCode: Provider.of<ConfigProvider>(context).getConfig("locale.scriptCode"),
+            ),
 
             home: Builder(
                 builder: (context) {

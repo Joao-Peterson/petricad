@@ -242,7 +242,7 @@ class ThemesProvider extends ChangeNotifier{
                     selectedColor: _getThemeColor(theme,"list.activeSelectionBackground"),
 
                     textFieldInputDecoration: const InputDecoration(
-                        hintText: "Type a command ...",
+                        hintText: "> ...",
                         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     )
                 ),

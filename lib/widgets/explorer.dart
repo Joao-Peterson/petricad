@@ -4,6 +4,7 @@ import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:path/path.dart' as p;
 import 'package:petricad/src/themes.dart';
 import 'package:petricad/widgets/sidebar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io';
 import '../src/cache.dart';
 
@@ -18,7 +19,6 @@ class Explorer extends StatefulWidget {
 
 class _ExplorerState extends State<Explorer> {
 
-    // ! remove this later
     String? _currentPath = null;
     late String _currentNode;
     late List<Node> _nodes;
@@ -47,17 +47,17 @@ class _ExplorerState extends State<Explorer> {
                 alignment: Alignment.topCenter,
                 child: Column(
                     children: [
-                        const Padding(
-                            padding: EdgeInsets.fromLTRB(5,20,5,5),
-                            child: Text("No folder currently is opened."),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(5,20,5,5),
+                            child: Text(AppLocalizations.of(context)!.explorerClosedText),
                         ),
                         Padding(
                             padding: const EdgeInsets.fromLTRB(5,5,5,20),
                             child: TextButton(
-                                child: const Text("Open folder"),
+                                child: Text(AppLocalizations.of(context)!.explorerClosedButtonLabel),
                                 onPressed: () async {
                                     _currentPath = await FilePicker.platform.getDirectoryPath(
-                                        dialogTitle: "Select a folder to open",
+                                        dialogTitle: AppLocalizations.of(context)!.explorerClosedFilePickDialogueTitle,
                                     );
                                     Provider.of<CacheProvider>(context, listen: false).setValue("openFolder", _currentPath);
                                     Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", TrayItemsEnum.explorer.index);
@@ -74,7 +74,7 @@ class _ExplorerState extends State<Explorer> {
                 children: [
                     Tooltip(
                         child: Container(
-                            child: Text("\"Opened: "+ _currentPath! + "\"", 
+                            child: Text("\"" + AppLocalizations.of(context)!.explorerOpenFolderPrefix + _currentPath! + "\"", 
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 softWrap: false,

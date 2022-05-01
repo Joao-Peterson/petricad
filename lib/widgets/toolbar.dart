@@ -1,5 +1,6 @@
 import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Toolbar extends StatelessWidget {
     const Toolbar({ Key? key }) : super(key: key);
@@ -20,14 +21,14 @@ class Toolbar extends StatelessWidget {
                         style: Theme.of(context).textTheme.button!,
                         child: Container(
                             child: PopupMenuButton<String>(
-                                child: const Text("Tools"),
+                                child: Text(AppLocalizations.of(context)!.toolbarToolsLabel),
                                 itemBuilder: (context) {
                                     return [
-                                        const PopupMenuItem(
-                                            child: Text("Command palette"),
-                                            value: "Command palette",
+                                        PopupMenuItem(
+                                            child: Text(AppLocalizations.of(context)!.toolbarToolsEntryCommandPalette),
+                                            value: "commandPalette",
                                             height: 0,
-                                            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                                            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
                                         ),
                                         // const PopupMenuDivider(height: 1),
                                     ];
@@ -40,12 +41,12 @@ class Toolbar extends StatelessWidget {
                                 ),
                                 onSelected: (item){
                                     switch (item) {
-                                        case "Command palette":
+                                        case "commandPalette":
                                             CommandPalette.of(context).open();   
                                         break;
                                     }
                                 },
-                                tooltip: "Tools",
+                                tooltip: AppLocalizations.of(context)!.toolbarToolsTooltip,
                             ),
                             alignment: Alignment.center,
                             padding: const EdgeInsets.symmetric(horizontal: 10),

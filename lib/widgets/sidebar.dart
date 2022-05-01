@@ -1,11 +1,13 @@
-import 'package:command_palette/command_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'iconbuttonsimple.dart';
 import 'editor.dart';
 import 'explorer.dart';
+import '../src/filemgr.dart';
 
 enum TrayItemsEnum{
     explorer,
@@ -20,7 +22,7 @@ class TrayItem{
     // members
     final TrayItemsEnum type;
     final Icon icon;
-    final String tooltip;
+    String tooltip;
     final List<String>? shortcut;
     Widget? widget;
 
@@ -28,7 +30,7 @@ class TrayItem{
     TrayItem({
         required this.type, 
         required this.icon, 
-        required this.tooltip,
+        this.tooltip = "",
         this.widget,
         this.shortcut,
     });
@@ -41,7 +43,6 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.folder_open_outlined,
         ),
-        tooltip: "File explorer",
         shortcut: ["ctrl", "shift", "e"],
         widget: const Explorer(), 
     ),   
@@ -52,7 +53,6 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.search,
         ),
-        tooltip: "Search"
     ),   
     
     // tools
@@ -61,7 +61,6 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.build_sharp,
         ),
-        tooltip: "Tools and components"
     ),   
 
     // debug
@@ -70,16 +69,14 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.preview,
         ),
-        tooltip: "Debug and watch"
     ),   
     
     // settings
     TrayItem(
-        type: TrayItemsEnum.tools,
+        type: TrayItemsEnum.settings,
         icon: const Icon(
             Icons.settings,
         ),
-        tooltip: "Program and project settings"
     ),   
 ];
 
@@ -103,6 +100,7 @@ class _SidebarState extends State<Sidebar> {
     @override
     Widget build(BuildContext context){
 
+        _applyTrayItemsLocale(context, trayItems);
         int sidebarActionIndex = Provider.of<CacheProvider>(context).getValue<int>("sidebarAction") ?? TrayItemsEnum.none.index;
         _currentItem = TrayItemsEnum.values.elementAt(sidebarActionIndex);
         _isOpen = Provider.of<CacheProvider>(context).getValue<bool>("sidebarIsOpen") ?? false;
@@ -149,7 +147,7 @@ class _SidebarState extends State<Sidebar> {
                                 const Editor(leftBorderActive: true)
                             ],
                             controller: _splitViewController,
-                            minimalWeight: 0.2,
+                            globalMinimalWeight: 0.2,
                         ),
                         data: MultiSplitViewThemeData(
                             dividerThickness: 6,
@@ -179,10 +177,6 @@ class _SidebarState extends State<Sidebar> {
         if(_currentItem == item.type){
             _currentItem = TrayItemsEnum.none;
             _isOpen = false;
-        }
-        else if(_currentItem == TrayItemsEnum.none){
-            _currentItem = item.type;
-            _isOpen = true;
         }
         else{
             _currentItem = item.type;
@@ -236,6 +230,7 @@ class Tray extends StatelessWidget {
                             child: Builder(
                                 builder: (context) {
                                     var item = trayItems[TrayItemsEnum.settings.index];
+                                    // config button
                                     return IconButtonSimple(
                                         icon: item.icon, 
                                         iconSize: 25,
@@ -244,7 +239,11 @@ class Tray extends StatelessWidget {
                                         color: Theme.of(context).iconTheme.color,
                                         highlightColor: Theme.of(context).highlightColor,
                                         onPressed: (){
-                                            CommandPalette.of(context).open();
+                                            launchUrl(
+                                                Uri.file(
+                                                    Provider.of<Filemgr>(context, listen: false).getFilePath("config")!,
+                                                )
+                                            );
                                         }
                                     );
                                 }
@@ -296,5 +295,35 @@ class Panel extends StatelessWidget {
             ),
             child: child,
         );
+    }
+}
+
+_applyTrayItemsLocale(BuildContext context, List<TrayItem> trayItems){
+    for(var item in trayItems){
+        switch (item.type){
+            case TrayItemsEnum.explorer:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionExplorerTooltip;
+            break;
+            
+            case TrayItemsEnum.search:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionSearchTooltip;
+            break;
+            
+            case TrayItemsEnum.tools:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionToolsTooltip;
+            break;
+            
+            case TrayItemsEnum.debug:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionDebugTooltip;
+            break;
+            
+            case TrayItemsEnum.settings:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionSettingsTooltip;
+            break;
+            
+            default:
+                item.tooltip = AppLocalizations.of(context)!.sidebarActionNoneTooltip;
+            break;
+        }
     }
 }
