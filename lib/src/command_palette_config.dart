@@ -3,9 +3,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
-import 'package:intl/intl.dart';
+import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:petricad/src/config.dart';
+import 'package:petricad/src/shortcut_to_string_list.dart';
 import 'package:petricad/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -81,16 +82,9 @@ List<CommandPaletteAction> _buildSidebarActionList(BuildContext context){
             CommandPaletteAction(
                 label: action.tooltip, 
                 actionType: CommandPaletteActionType.single,
-                // shortcut: action.shortcut,
+                shortcut: action.shortcut != null ? singleActivatorToStringList(action.shortcut as SingleActivator) : null,
                 onSelect: (){
-                    if(Provider.of<CacheProvider>(context, listen: false).getValue("sidebarAction") == action.type.index){
-                        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", TrayItemsEnum.none.index);
-                        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", false);
-                    }
-                    else{
-                        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", action.type.index);
-                        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", true);
-                    }
+                    Actions.invoke(context, SidebarActionIntent(context, action.type));
                 }
             )
         );

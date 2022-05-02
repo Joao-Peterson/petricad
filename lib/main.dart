@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
+import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
+import 'package:petricad/src/shortcuts.dart';
 import 'package:provider/provider.dart';
 import 'package:command_palette/command_palette.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -99,19 +99,34 @@ class App extends StatelessWidget {
 
             home: Builder(
                 builder: (context) {
-
-                    return CommandPalette(
-                        child: Scaffold(
-                            body: Column(children: const [
-                                Toolbar(),
-                                Expanded(
-                                    child: Sidebar()
+                    return Scaffold(
+                        body: Shortcuts(
+                            shortcuts: buildShortcuts(context),
+                            child: Actions(
+                                actions: buildActions(),
+                                child: Builder(
+                                    builder: (context) {
+                                        // remake trayitems tooltips on locale change before command palette and sidebar
+                                        applyTrayItemsLocale(context, trayItems);
+                                        return CommandPalette(
+                                            // focus should be below Commandpalette to do not disturb its internal shortcut focus
+                                            child: Focus(
+                                                autofocus: true,
+                                                child: Column(children: const [
+                                                    Toolbar(),
+                                                    Expanded(
+                                                        child: Sidebar()
+                                                    ),
+                                                    Statusbar()
+                                                ],),
+                                            ),
+                                            config: buildCommandConfig(context),
+                                            actions: buildCommandList(context),
+                                        );
+                                    }
                                 ),
-                                Statusbar()
-                            ],)
+                            ),
                         ),
-                        config: buildCommandConfig(context),
-                        actions: buildCommandList(context),
                     );
                 }
             )

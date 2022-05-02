@@ -54,7 +54,10 @@ class _ExplorerState extends State<Explorer> {
                         Padding(
                             padding: const EdgeInsets.fromLTRB(5,5,5,20),
                             child: TextButton(
-                                child: Text(AppLocalizations.of(context)!.explorerClosedButtonLabel),
+                                child: Text(
+                                    AppLocalizations.of(context)!.explorerClosedButtonLabel,
+                                    style: Theme.of(context).textTheme.button,
+                                ),
                                 onPressed: () async {
                                     _currentPath = await FilePicker.platform.getDirectoryPath(
                                         dialogTitle: AppLocalizations.of(context)!.explorerClosedFilePickDialogueTitle,

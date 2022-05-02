@@ -148,15 +148,18 @@ class ThemesProvider extends ChangeNotifier{
                         background: _getThemeColor(theme,"editor.background"),
                         onBackground: _getThemeColor(theme,"editor.foreground"),
 
-                        primary: _getThemeColor(theme,"sideBar.background"),
-                        onPrimary: _getThemeColor(theme,"sideBar.foreground"),
+                        primary: _getThemeColor(theme,"activityBar.background"),
+                        onPrimary: _getThemeColor(theme,"activityBar.foreground"),
                         inversePrimary: _getThemeColor(theme,"list.highlightForeground"),
 
-                        secondary: _getThemeColor(theme,"statusBar.background"),
-                        onSecondary: _getThemeColor(theme,"statusBar.background"),
+                        secondary: _getThemeColor(theme,"sideBar.background"),
+                        onSecondary: _getThemeColor(theme,"sideBar.background"),
 
-                        tertiary: _getThemeColor(theme,"list.activeSelectionBackground"),
-                        onTertiary: _getThemeColor(theme,"list.activeSelectionForeground"),
+                        // tertiary: _getThemeColor(theme,"list.activeSelectionBackground"),
+                        // onTertiary: _getThemeColor(theme,"list.activeSelectionForeground"),
+                        // tertiary: _getThemeColor(theme,"statusBar.debuggingBackground"),
+                        tertiary: _getThemeColor(theme,"statusBar.background"),
+                        onTertiary: _getThemeColor(theme,"statusBar.foreground"),
 
                         surface: _getThemeColor(theme,"editor.background"),
                         onSurface: _getThemeColor(theme,"editor.foreground"),
@@ -186,7 +189,7 @@ class ThemesProvider extends ChangeNotifier{
                             backgroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"sideBar.background")),
                             foregroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"sideBar.foreground")),
                             overlayColor:       MaterialStateProperty.all<Color>(_getThemeColor(theme,"list.activeSelectionBackground")),
-                            elevation:          MaterialStateProperty.all<double>(.5),
+                            elevation:          MaterialStateProperty.all<double>(1),
                             shape:              MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2),
                             )),  
@@ -242,7 +245,7 @@ class ThemesProvider extends ChangeNotifier{
                     selectedColor: _getThemeColor(theme,"list.activeSelectionBackground"),
 
                     textFieldInputDecoration: const InputDecoration(
-                        hintText: "> ...",
+                        hintText: ">...",
                         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     )
                 ),

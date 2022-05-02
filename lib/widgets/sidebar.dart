@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:petricad/src/cache.dart';
+import 'package:petricad/src/shortcut_to_string_list.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,8 +25,8 @@ class TrayItem{
     final TrayItemsEnum type;
     final Icon icon;
     String tooltip;
-    final List<String>? shortcut;
     Widget? widget;
+    ShortcutActivator? shortcut;
 
     // constructor
     TrayItem({
@@ -43,8 +45,8 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.folder_open_outlined,
         ),
-        shortcut: ["ctrl", "shift", "e"],
         widget: const Explorer(), 
+        shortcut: const SingleActivator(LogicalKeyboardKey.keyE, control: true),
     ),   
     
     // search
@@ -53,6 +55,7 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.search,
         ),
+        shortcut: const SingleActivator(LogicalKeyboardKey.keyR, control: true),
     ),   
     
     // tools
@@ -61,6 +64,7 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.build_sharp,
         ),
+        shortcut: const SingleActivator(LogicalKeyboardKey.keyT, control: true),
     ),   
 
     // debug
@@ -69,6 +73,7 @@ List<TrayItem> trayItems = [
         icon: const Icon(
             Icons.preview,
         ),
+        shortcut: const SingleActivator(LogicalKeyboardKey.keyD, control: true),
     ),   
     
     // settings
@@ -99,8 +104,7 @@ class _SidebarState extends State<Sidebar> {
 
     @override
     Widget build(BuildContext context){
-
-        _applyTrayItemsLocale(context, trayItems);
+        
         int sidebarActionIndex = Provider.of<CacheProvider>(context).getValue<int>("sidebarAction") ?? TrayItemsEnum.none.index;
         _currentItem = TrayItemsEnum.values.elementAt(sidebarActionIndex);
         _isOpen = Provider.of<CacheProvider>(context).getValue<bool>("sidebarIsOpen") ?? false;
@@ -152,7 +156,7 @@ class _SidebarState extends State<Sidebar> {
                         data: MultiSplitViewThemeData(
                             dividerThickness: 6,
                             dividerPainter: DividerPainters.background(
-                                color:              Theme.of(context).colorScheme.primary,
+                                color:              Theme.of(context).colorScheme.secondary,
                                 highlightedColor:   Theme.of(context).colorScheme.tertiary,
                             )
                         )
@@ -267,7 +271,7 @@ class Tray extends StatelessWidget {
             pressed: currentItem == item ? true : false,
             icon: trayItem.icon,
             iconSize: size,
-            tooltip: trayItem.tooltip,
+            tooltip: ((trayItem.shortcut == null) ? trayItem.tooltip : trayItem.tooltip + " (" + singleActivatorToString(trayItem.shortcut as SingleActivator) + ")"),
             padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
             color: Theme.of(context).iconTheme.color,
             highlightColor: Theme.of(context).highlightColor,
@@ -291,14 +295,14 @@ class Panel extends StatelessWidget {
             width: 400,
             height: double.infinity,
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
             ),
             child: child,
         );
     }
 }
 
-_applyTrayItemsLocale(BuildContext context, List<TrayItem> trayItems){
+applyTrayItemsLocale(BuildContext context, List<TrayItem> trayItems){
     for(var item in trayItems){
         switch (item.type){
             case TrayItemsEnum.explorer:

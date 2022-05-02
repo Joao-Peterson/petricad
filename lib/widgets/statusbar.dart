@@ -9,7 +9,7 @@ class Statusbar extends StatelessWidget {
             height: 21,
             width: double.infinity,
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.tertiary,
                 // border: Border(top: BorderSide(width: 1, color: Theme.of(context).dividerColor))
             ),
         );
