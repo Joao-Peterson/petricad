@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multi_split_view/multi_split_view.dart';
@@ -105,23 +106,25 @@ class _SidebarState extends State<Sidebar> {
     }
 
     void _onItemClick(SidebarAction item){
-        if(_isOpen){
-            if(_currentItem == item.type){
-                _isOpen = false;
+        if(item.openSidePanel){
+            if(_isOpen){
+                if(_currentItem == item.type){
+                    _isOpen = false;
+                }
+                else{
+                    _currentItem = item.type;
+                }
             }
             else{
+                _isOpen = true;
                 _currentItem = item.type;
             }
-        }
-        else{
-            _isOpen = true;
-            _currentItem = item.type;
-        }
-        
-        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", item.type.index);
-        Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", _isOpen);
+            
+            Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", item.type.index);
+            Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", _isOpen);
 
-        setState(() {});
+            setState(() {});
+        }
         
         return;
     }
@@ -130,9 +133,9 @@ class _SidebarState extends State<Sidebar> {
 // just the sidebar, a tray to hold buttons
 class Tray extends StatelessWidget {
     
-    /// callback for click handling of all buttons in the tray
+    // callback for click handling of all buttons in the tray
     final void Function(SidebarAction item)? onPressed; 
-    /// current ative item on tray
+    // current ative item on tray
     final SidebarActionEnum? currentItem;
 
     const Tray({ 
@@ -155,58 +158,50 @@ class Tray extends StatelessWidget {
             ),
 
             child: Column(
-                children: [
-                    trayItemIconButton(context, SidebarActionEnum.explorer,  27),
-                    trayItemIconButton(context, SidebarActionEnum.search,    27),
-                    trayItemIconButton(context, SidebarActionEnum.tools,     27),
-                    trayItemIconButton(context, SidebarActionEnum.debug,     27),
-                    Expanded(
-                        child: Align(
-                            child: Builder(
-                                builder: (context) {
-                                    var item = Provider.of<SidebarActionsProvider>(context).actions[SidebarActionEnum.settings.index];
-                                    // config button
-                                    return IconButtonSimple(
-                                        icon: item.icon, 
-                                        iconSize: 25,
-                                        tooltip: item.tooltip,
-                                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-                                        color: Theme.of(context).iconTheme.color,
-                                        highlightColor: Theme.of(context).highlightColor,
-                                        onPressed: (){
-                                            launchUrl(
-                                                Uri.file(
-                                                    Provider.of<Filemgr>(context, listen: false).getFilePath("config")!,
-                                                )
-                                            );
-                                        }
-                                    );
-                                }
-                            ),
-                            alignment: Alignment.bottomCenter,
-                        ),
-                    )
-                ],
+                children: _buildTrayActions(context, Provider.of<SidebarActionsProvider>(context).actions, 27)
             ),
         );
     }
 
-    IconButtonSimple trayItemIconButton(
-        BuildContext context, SidebarActionEnum item, double size
-    ){
-        var trayItem = Provider.of<SidebarActionsProvider>(context).actions[item.index];
-        return IconButtonSimple(
-            onPressed: (){
-                onPressed!(trayItem);
-            }, 
-            pressed: currentItem == item ? true : false,
-            icon: trayItem.icon,
-            iconSize: size,
-            tooltip: ((trayItem.shortcut == null) ? trayItem.tooltip : trayItem.tooltip + " (" + singleActivatorToPrettyString(trayItem.shortcut as SingleActivator) + ")"),
-            padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-            color: Theme.of(context).iconTheme.color,
-            highlightColor: Theme.of(context).highlightColor,
+    List<Widget> _buildTrayActions(BuildContext context, List<SidebarAction> actions, double size){
+        List<Widget> widgetList = [];
+        List<Widget> bottomWidgetList = [];
+
+        for(var action in actions){
+            var widget = IconButtonSimple(
+                onPressed: (){
+                    // callback of all buttons
+                    onPressed!(action);
+
+                    // call for a specific button
+                    if(action.onPress != null){
+                        action.onPress!(context);
+                    }
+                }, 
+                pressed: ((currentItem == action.type) && action.openSidePanel) ? true : false,
+                icon: action.icon,
+                iconSize: size,
+                tooltip: ((action.shortcut == null) ? action.tooltip : action.tooltip + " (" + singleActivatorToPrettyString(action.shortcut as SingleActivator) + ")"),
+                padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+                color: Theme.of(context).iconTheme.color,
+                highlightColor: Theme.of(context).highlightColor,
+            );
+
+            if(action.toTheBottom == true){
+                bottomWidgetList.add(widget);
+            }
+            else{
+                widgetList.add(widget);
+            }
+        }
+
+        widgetList.add(
+            const Expanded(
+                child: Spacer(),
+            )
         );
+
+        return widgetList + bottomWidgetList;
     }
 }
 

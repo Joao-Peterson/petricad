@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:petricad/src/config.dart';
+import 'package:petricad/src/filemgr.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:petricad/widgets/explorer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SidebarAction{    
     // members
@@ -15,6 +17,8 @@ class SidebarAction{
     ShortcutActivator? shortcut;
     bool openSidePanel;
     Widget? sidePanelWidget;
+    void Function(BuildContext context)? onPress;
+    bool toTheBottom;
 
     // constructor
     SidebarAction({
@@ -24,6 +28,8 @@ class SidebarAction{
         this.sidePanelWidget,
         this.shortcut,
         this.openSidePanel = false,
+        this.onPress,
+        this.toTheBottom = false
     });
 }
 
@@ -86,12 +92,21 @@ class SidebarActionsProvider extends ChangeNotifier{
             icon: const Icon(
                 Icons.settings,
             ),
+            toTheBottom: true,
+            onPress: (BuildContext context){
+                launchUrl(
+                    Uri.file(
+                        Provider.of<Filemgr>(context, listen: false).getFilePath("config")!,
+                    )
+                );
+            }
         ),   
     ];
 
     // constructor
     SidebarActionsProvider();
 
+    // update tooltips and shortcuts 
     update(BuildContext context){
         for(var item in actions){
             switch (item.type){

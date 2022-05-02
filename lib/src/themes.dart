@@ -87,7 +87,7 @@ class ThemesProvider extends ChangeNotifier{
                 );
 
                 // remove leading commas on last child of array/object
-                themeString = themeString.replaceAllMapped(RegExp(r",([\n\s]+(\}|\]))", multiLine: true, caseSensitive: false), 
+                themeString = themeString.replaceAllMapped(RegExp(r",([\n\s]*(\}|\]))", multiLine: true, caseSensitive: false), 
                     (Match m) => "${m[1]}"
                 );
                 
