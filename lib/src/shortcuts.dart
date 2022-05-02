@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:petricad/src/config.dart';
+import 'package:petricad/src/shortcut_helper.dart';
+import 'package:petricad/src/sidebar_actions.dart';
 import 'package:petricad/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'actions.dart';
@@ -8,7 +11,7 @@ import '../src/cache.dart';
 // shortcut list
 Map<ShortcutActivator, Intent> buildShortcuts(BuildContext context){
     Map<ShortcutActivator, Intent> shortcuts = {
-        // ! add shortcuts here
+        singleActivatorFromString(Provider.of<ConfigProvider>(context).getConfig<String>("shortcuts.sidebarToggleOpen")) ?? const SingleActivator(LogicalKeyboardKey.keyP): SidebarToggleOpenIntent(context),
     };
 
     shortcuts = _buildSidebarActionsShortcuts(context, shortcuts); 
@@ -21,7 +24,7 @@ Map<ShortcutActivator, Intent> buildShortcuts(BuildContext context){
 // sidebar actions shorcut builder
 Map<ShortcutActivator, Intent> _buildSidebarActionsShortcuts(BuildContext context, Map<ShortcutActivator, Intent> shortcuts){
 
-    for(var item in trayItems){
+    for(var item in Provider.of<SidebarActionsProvider>(context).actions){
         if(item.shortcut != null){
             shortcuts[item.shortcut!] = SidebarActionIntent(context, item.type);
         }

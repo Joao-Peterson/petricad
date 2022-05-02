@@ -1,4 +1,6 @@
 {
+    "name": "English",
+    
     "toolbarToolsLabel": "Tools",
     "toolbarToolsTooltip": "Program tools",
     "toolbarToolsEntryCommandPalette": "Command Palette",

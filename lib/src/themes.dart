@@ -186,8 +186,8 @@ class ThemesProvider extends ChangeNotifier{
 
                     textButtonTheme: TextButtonThemeData(
                         style: ButtonStyle(
-                            backgroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"sideBar.background")),
-                            foregroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"sideBar.foreground")),
+                            backgroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"editor.background")),
+                            foregroundColor:    MaterialStateProperty.all<Color>(_getThemeColor(theme,"editor.foreground")),
                             overlayColor:       MaterialStateProperty.all<Color>(_getThemeColor(theme,"list.activeSelectionBackground")),
                             elevation:          MaterialStateProperty.all<double>(1),
                             shape:              MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
@@ -202,6 +202,12 @@ class ThemesProvider extends ChangeNotifier{
 
                     textTheme: TextTheme(
                         button: TextStyle(
+                            color: _getThemeColor(theme,"editor.foreground"),
+                            fontSize: 13.0,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.normal
+                        ),
+                        bodyText2: TextStyle(
                             color: _getThemeColor(theme,"editor.foreground"),
                             fontSize: 13.0,
                             letterSpacing: 0,

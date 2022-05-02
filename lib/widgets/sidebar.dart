@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:petricad/src/cache.dart';
-import 'package:petricad/src/shortcut_to_string_list.dart';
+import 'package:petricad/src/shortcut_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -10,80 +10,7 @@ import 'iconbuttonsimple.dart';
 import 'editor.dart';
 import 'explorer.dart';
 import '../src/filemgr.dart';
-
-enum TrayItemsEnum{
-    explorer,
-    search,
-    tools,
-    debug,
-    settings,
-    none
-}
-
-class TrayItem{    
-    // members
-    final TrayItemsEnum type;
-    final Icon icon;
-    String tooltip;
-    Widget? widget;
-    ShortcutActivator? shortcut;
-
-    // constructor
-    TrayItem({
-        required this.type, 
-        required this.icon, 
-        this.tooltip = "",
-        this.widget,
-        this.shortcut,
-    });
-}
-
-List<TrayItem> trayItems = [
-    // explorer
-    TrayItem(
-        type: TrayItemsEnum.explorer,
-        icon: const Icon(
-            Icons.folder_open_outlined,
-        ),
-        widget: const Explorer(), 
-        shortcut: const SingleActivator(LogicalKeyboardKey.keyE, control: true),
-    ),   
-    
-    // search
-    TrayItem(
-        type: TrayItemsEnum.search,
-        icon: const Icon(
-            Icons.search,
-        ),
-        shortcut: const SingleActivator(LogicalKeyboardKey.keyR, control: true),
-    ),   
-    
-    // tools
-    TrayItem(
-        type: TrayItemsEnum.tools,
-        icon: const Icon(
-            Icons.build_sharp,
-        ),
-        shortcut: const SingleActivator(LogicalKeyboardKey.keyT, control: true),
-    ),   
-
-    // debug
-    TrayItem(
-        type: TrayItemsEnum.debug,
-        icon: const Icon(
-            Icons.preview,
-        ),
-        shortcut: const SingleActivator(LogicalKeyboardKey.keyD, control: true),
-    ),   
-    
-    // settings
-    TrayItem(
-        type: TrayItemsEnum.settings,
-        icon: const Icon(
-            Icons.settings,
-        ),
-    ),   
-];
+import '../src/sidebar_actions.dart';
 
 // sidebar with editor, expads the whole screen width
 class Sidebar extends StatefulWidget {
@@ -99,21 +26,21 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
 
     bool _isOpen = false;
-    TrayItemsEnum? _currentItem = TrayItemsEnum.none;
+    SidebarActionEnum? _currentItem = SidebarActionEnum.none;
     final MultiSplitViewController _splitViewController = MultiSplitViewController(weights: [0.3, 0.7]);
 
     @override
     Widget build(BuildContext context){
         
-        int sidebarActionIndex = Provider.of<CacheProvider>(context).getValue<int>("sidebarAction") ?? TrayItemsEnum.none.index;
-        _currentItem = TrayItemsEnum.values.elementAt(sidebarActionIndex);
+        int sidebarActionIndex = Provider.of<CacheProvider>(context).getValue<int>("sidebarAction") ?? SidebarActionEnum.none.index;
+        _currentItem = SidebarActionEnum.values.elementAt(sidebarActionIndex);
         _isOpen = Provider.of<CacheProvider>(context).getValue<bool>("sidebarIsOpen") ?? false;
         
         // sidebar must be closed with currentItem == none
         // because the toggle logic will leave selected items with the sidebar closed
-        if(!_isOpen && _currentItem != TrayItemsEnum.none){
-            _currentItem = TrayItemsEnum.none;
-        }
+        // if(!_isOpen && _currentItem != SidebarActionEnum.none){
+        //     _currentItem = SidebarActionEnum.none;
+        // }
 
         return LayoutBuilder(
             builder: (context, constraints) {
@@ -121,16 +48,16 @@ class _SidebarState extends State<Sidebar> {
                 var tray = Tray(
                     key: UniqueKey(), 
                     onPressed: _onItemClick, 
-                    currentItem: _currentItem,
+                    currentItem: _isOpen ? _currentItem : SidebarActionEnum.none,
                 );
 
 
                 Widget? panelChild; 
-                if (_currentItem == null || _currentItem == TrayItemsEnum.none){
+                if (_currentItem == null || _currentItem == SidebarActionEnum.none){
                     panelChild = null;
                 }
                 else{
-                    panelChild = trayItems[(_currentItem ?? TrayItemsEnum.none).index].widget;
+                    panelChild = Provider.of<SidebarActionsProvider>(context).actions[(_currentItem ?? SidebarActionEnum.none).index].sidePanelWidget;
                 }
 
                 if(_isOpen){
@@ -177,14 +104,18 @@ class _SidebarState extends State<Sidebar> {
         );
     }
 
-    void _onItemClick(TrayItem item){
-        if(_currentItem == item.type){
-            _currentItem = TrayItemsEnum.none;
-            _isOpen = false;
+    void _onItemClick(SidebarAction item){
+        if(_isOpen){
+            if(_currentItem == item.type){
+                _isOpen = false;
+            }
+            else{
+                _currentItem = item.type;
+            }
         }
         else{
-            _currentItem = item.type;
             _isOpen = true;
+            _currentItem = item.type;
         }
         
         Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", item.type.index);
@@ -200,14 +131,14 @@ class _SidebarState extends State<Sidebar> {
 class Tray extends StatelessWidget {
     
     /// callback for click handling of all buttons in the tray
-    final void Function(TrayItem item)? onPressed; 
+    final void Function(SidebarAction item)? onPressed; 
     /// current ative item on tray
-    final TrayItemsEnum? currentItem;
+    final SidebarActionEnum? currentItem;
 
     const Tray({ 
         Key? key, 
         this.onPressed,
-        this.currentItem = TrayItemsEnum.none,
+        this.currentItem = SidebarActionEnum.none,
     }) : super(key: key);
 
     @override
@@ -225,15 +156,15 @@ class Tray extends StatelessWidget {
 
             child: Column(
                 children: [
-                    trayItemIconButton(context, TrayItemsEnum.explorer,  27),
-                    trayItemIconButton(context, TrayItemsEnum.search,    27),
-                    trayItemIconButton(context, TrayItemsEnum.tools,     27),
-                    trayItemIconButton(context, TrayItemsEnum.debug,     27),
+                    trayItemIconButton(context, SidebarActionEnum.explorer,  27),
+                    trayItemIconButton(context, SidebarActionEnum.search,    27),
+                    trayItemIconButton(context, SidebarActionEnum.tools,     27),
+                    trayItemIconButton(context, SidebarActionEnum.debug,     27),
                     Expanded(
                         child: Align(
                             child: Builder(
                                 builder: (context) {
-                                    var item = trayItems[TrayItemsEnum.settings.index];
+                                    var item = Provider.of<SidebarActionsProvider>(context).actions[SidebarActionEnum.settings.index];
                                     // config button
                                     return IconButtonSimple(
                                         icon: item.icon, 
@@ -261,9 +192,9 @@ class Tray extends StatelessWidget {
     }
 
     IconButtonSimple trayItemIconButton(
-        BuildContext context, TrayItemsEnum item, double size
+        BuildContext context, SidebarActionEnum item, double size
     ){
-        var trayItem = trayItems[item.index];
+        var trayItem = Provider.of<SidebarActionsProvider>(context).actions[item.index];
         return IconButtonSimple(
             onPressed: (){
                 onPressed!(trayItem);
@@ -271,7 +202,7 @@ class Tray extends StatelessWidget {
             pressed: currentItem == item ? true : false,
             icon: trayItem.icon,
             iconSize: size,
-            tooltip: ((trayItem.shortcut == null) ? trayItem.tooltip : trayItem.tooltip + " (" + singleActivatorToString(trayItem.shortcut as SingleActivator) + ")"),
+            tooltip: ((trayItem.shortcut == null) ? trayItem.tooltip : trayItem.tooltip + " (" + singleActivatorToPrettyString(trayItem.shortcut as SingleActivator) + ")"),
             padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
             color: Theme.of(context).iconTheme.color,
             highlightColor: Theme.of(context).highlightColor,
@@ -299,35 +230,5 @@ class Panel extends StatelessWidget {
             ),
             child: child,
         );
-    }
-}
-
-applyTrayItemsLocale(BuildContext context, List<TrayItem> trayItems){
-    for(var item in trayItems){
-        switch (item.type){
-            case TrayItemsEnum.explorer:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionExplorerTooltip;
-            break;
-            
-            case TrayItemsEnum.search:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionSearchTooltip;
-            break;
-            
-            case TrayItemsEnum.tools:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionToolsTooltip;
-            break;
-            
-            case TrayItemsEnum.debug:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionDebugTooltip;
-            break;
-            
-            case TrayItemsEnum.settings:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionSettingsTooltip;
-            break;
-            
-            default:
-                item.tooltip = AppLocalizations.of(context)!.sidebarActionNoneTooltip;
-            break;
-        }
     }
 }

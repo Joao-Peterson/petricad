@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:path/path.dart' as p;
+import 'package:petricad/src/sidebar_actions.dart';
 import 'package:petricad/src/themes.dart';
 import 'package:petricad/widgets/sidebar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -54,16 +55,13 @@ class _ExplorerState extends State<Explorer> {
                         Padding(
                             padding: const EdgeInsets.fromLTRB(5,5,5,20),
                             child: TextButton(
-                                child: Text(
-                                    AppLocalizations.of(context)!.explorerClosedButtonLabel,
-                                    style: Theme.of(context).textTheme.button,
-                                ),
+                                child: Text(AppLocalizations.of(context)!.explorerClosedButtonLabel),
                                 onPressed: () async {
                                     _currentPath = await FilePicker.platform.getDirectoryPath(
                                         dialogTitle: AppLocalizations.of(context)!.explorerClosedFilePickDialogueTitle,
                                     );
                                     Provider.of<CacheProvider>(context, listen: false).setValue("openFolder", _currentPath);
-                                    Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", TrayItemsEnum.explorer.index);
+                                    Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", SidebarActionEnum.explorer.index);
                                     Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", true);
                                 }, 
                             ),

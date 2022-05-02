@@ -1,4 +1,6 @@
 {
+    "name": "Português",
+    
     "toolbarToolsLabel": "Ferramentas",
     "toolbarToolsTooltip": "Ferramentas do programa",
     "toolbarToolsEntryCommandPalette": "Menu de comandos",

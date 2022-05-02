@@ -6,7 +6,8 @@ import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:petricad/src/config.dart';
-import 'package:petricad/src/shortcut_to_string_list.dart';
+import 'package:petricad/src/shortcut_helper.dart';
+import 'package:petricad/src/sidebar_actions.dart';
 import 'package:petricad/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -41,7 +42,7 @@ List<CommandPaletteAction> buildCommandList(BuildContext context){
                     dialogTitle: AppLocalizations.of(context)!.explorerClosedFilePickDialogueTitle,
                 );
                 Provider.of<CacheProvider>(context, listen: false).setValue("openFolder", dir);
-                Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", TrayItemsEnum.explorer.index);
+                Provider.of<CacheProvider>(context, listen: false).setValue("sidebarAction", SidebarActionEnum.explorer.index);
                 Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", true);
             }
         ),
@@ -61,7 +62,7 @@ List<CommandPaletteAction> _buildLocaleList(BuildContext context){
     
     for(var locale in AppLocalizations.supportedLocales){
         list.add(CommandPaletteAction(
-            label: locale.toString(), 
+            label: lookupAppLocalizations(locale).name + " (" + locale.toString() + ")", 
             actionType: CommandPaletteActionType.single,
             onSelect: (){
                 Provider.of<ConfigProvider>(context, listen: false).setConfig("locale.languageCode", locale.languageCode);
@@ -77,12 +78,12 @@ List<CommandPaletteAction> _buildLocaleList(BuildContext context){
 // create sidebar command list 
 List<CommandPaletteAction> _buildSidebarActionList(BuildContext context){
     List<CommandPaletteAction> list = [];
-    for(var action in trayItems){
+    for(var action in Provider.of<SidebarActionsProvider>(context).actions){
         list.add(
             CommandPaletteAction(
                 label: action.tooltip, 
                 actionType: CommandPaletteActionType.single,
-                shortcut: action.shortcut != null ? singleActivatorToStringList(action.shortcut as SingleActivator) : null,
+                shortcut: action.shortcut != null ? singleActivatorToPrettyStringList(action.shortcut as SingleActivator) : null,
                 onSelect: (){
                     Actions.invoke(context, SidebarActionIntent(context, action.type));
                 }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:petricad/src/shortcuts.dart';
+import 'package:petricad/src/sidebar_actions.dart';
 import 'package:provider/provider.dart';
 import 'package:command_palette/command_palette.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -54,6 +55,7 @@ void main() async{
     var configProvider = ConfigProvider(filename: configPath);
     var cacheProvider = CacheProvider(filename: cachePath);
     var themeProvider  = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme") ?? "Owlet (Palenight)");
+    var sidebarActionsProvider = SidebarActionsProvider();
 
     runApp(
         MultiProvider(
@@ -62,6 +64,7 @@ void main() async{
                 ChangeNotifierProvider(create: (context) {return configProvider;}),
                 ChangeNotifierProvider(create: (context) {return themeProvider;}),
                 ChangeNotifierProvider(create: (context) {return cacheProvider;}),
+                ChangeNotifierProvider(create: (context) {return sidebarActionsProvider;}),
             ],
             child: const App()
         )
@@ -106,8 +109,8 @@ class App extends StatelessWidget {
                                 actions: buildActions(),
                                 child: Builder(
                                     builder: (context) {
-                                        // remake trayitems tooltips on locale change before command palette and sidebar
-                                        applyTrayItemsLocale(context, trayItems);
+                                        // remake trayitems tooltips on locale change before command palette and sidebar and their shorcuts
+                                        Provider.of<SidebarActionsProvider>(context, listen: false).update(context);
                                         return CommandPalette(
                                             // focus should be below Commandpalette to do not disturb its internal shortcut focus
                                             child: Focus(
