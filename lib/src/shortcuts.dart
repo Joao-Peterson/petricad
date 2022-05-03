@@ -3,10 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:petricad/src/config.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:petricad/src/sidebar_actions.dart';
-import 'package:petricad/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'actions.dart';
-import '../src/cache.dart';
 
 // shortcut list
 Map<ShortcutActivator, Intent> buildShortcuts(BuildContext context){
@@ -26,7 +24,7 @@ Map<ShortcutActivator, Intent> _buildSidebarActionsShortcuts(BuildContext contex
 
     for(var item in Provider.of<SidebarActionsProvider>(context).actions){
         if(item.shortcut != null){
-            shortcuts[item.shortcut!] = SidebarActionIntent(context, item.type);
+            shortcuts[item.shortcut!] = SidebarActionIntent(context, item);
         }
     }
 

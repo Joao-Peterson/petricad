@@ -27,38 +27,38 @@ class PlatformInfo {
     
     static PlatformType getPlatform() {
         if (kIsWeb) {
-            return PlatformType.Web;
+            return PlatformType.web;
         }
         if (Platform.isMacOS) {
-            return PlatformType.MacOS;
+            return PlatformType.macos;
         }
         if (Platform.isFuchsia) {
-            return PlatformType.Fuchsia;
+            return PlatformType.fuchsia;
         }
         if (Platform.isLinux) {
-            return PlatformType.Linux;
+            return PlatformType.linux;
         }
         if (Platform.isWindows) {
-            return PlatformType.Windows;
+            return PlatformType.windows;
         }
         if (Platform.isIOS) {
-            return PlatformType.IOS;
+            return PlatformType.ios;
         }
         if (Platform.isAndroid) {
-            return PlatformType.Android;
+            return PlatformType.android;
         }
 
-        return PlatformType.Unknown;
+        return PlatformType.unknown;
     }
 }
 
 enum PlatformType {
-    Web,
-    IOS,
-    Android,
-    MacOS,
-    Fuchsia,
-    Linux,
-    Windows,
-    Unknown
+    web,
+    ios,
+    android,
+    macos,
+    fuchsia,
+    linux,
+    windows,
+    unknown
 }

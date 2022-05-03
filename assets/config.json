@@ -1,5 +1,18 @@
 {
     "visual": {
-        "theme" : "Owlet (Palenight)"
+        "theme": "Nanowise"
+    },
+    "locale": {
+        "languageCode": "en",
+        "countryCode": null,
+        "scriptCode": null
+    },
+    "shortcuts": {
+        "sidebarToggleOpen": "ctrl+b",
+        "sidebarActionExplorer": "ctrl+e",
+        "sidebarActionSearch": "ctrl+r",
+        "sidebarActionTools": "ctrl+t",
+        "sidebarActionDebug": "ctrl+d",
+        "sidebarActionSettings": null
     }
 }

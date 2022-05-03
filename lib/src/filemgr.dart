@@ -25,17 +25,17 @@ class Filemgr extends ChangeNotifier{
         String path;
 
         switch (PlatformInfo.getPlatform()){
-            case PlatformType.Linux:
+            case PlatformType.linux:
                 path = _linuxHome;
             break;
             
-            case PlatformType.Windows:
+            case PlatformType.windows:
                 path = _windowsHome;
             break;
             
             default:
                 print("Platform " + Platform.environment.toString() + " is supported in this application");
-                return;
+            return;
         }
 
         path = envVars[path] ?? _linuxHome;

@@ -6,8 +6,15 @@ class ConfigProvider extends ChangeNotifier{
     late Map<String, dynamic> _config;
     late String _filename; 
 
+    // constructor
     ConfigProvider({required String filename}){
-        File json = File(filename);
+        _filename = filename;
+        buildConfig();
+    }
+
+    // read config file
+    buildConfig(){
+        File json = File(_filename);
         String jsonString = json.readAsStringSync();
 
         jsonString = jsonString.replaceAllMapped(RegExp(r"(://)|[$]", multiLine: false, caseSensitive: false), 
@@ -23,8 +30,7 @@ class ConfigProvider extends ChangeNotifier{
         );
         
         _config = jsonDecode(jsonString);
-
-        _filename = filename;
+        notifyListeners();
     }
 
     setConfig<T>(String configName, T value){

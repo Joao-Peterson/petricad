@@ -52,10 +52,10 @@ void main() async{
         await DesktopWindow.setMinWindowSize(const Size(500, 500));
     }
 
-    var configProvider = ConfigProvider(filename: configPath);
-    var cacheProvider = CacheProvider(filename: cachePath);
-    var themeProvider  = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme") ?? "Owlet (Palenight)");
-    var sidebarActionsProvider = SidebarActionsProvider();
+    var configProvider          = ConfigProvider(filename: configPath);
+    var cacheProvider           = CacheProvider(filename: cachePath);
+    var themeProvider           = ThemesProvider(themesDir: themesDir, startTheme: configProvider.getConfig<String>("visual.theme") ?? "Owlet (Palenight)");
+    var sidebarActionsProvider  = SidebarActionsProvider();
 
     runApp(
         MultiProvider(
@@ -83,17 +83,6 @@ class App extends StatelessWidget {
             theme: Provider.of<ThemesProvider>(context).getTheme().libThemeData,
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
-            localeResolutionCallback: (locale, supportedLocales){
-                for(var supportedLocale in supportedLocales){
-                    if(
-                        locale?.languageCode == supportedLocale.languageCode &&
-                        locale?.countryCode == supportedLocale.countryCode
-                    ){
-                        return supportedLocale;
-                    }
-                }
-                return supportedLocales.first;
-            },
             locale: Locale.fromSubtags(
                 languageCode: Provider.of<ConfigProvider>(context).getConfig("locale.languageCode"),
                 countryCode: Provider.of<ConfigProvider>(context).getConfig("locale.countryCode"),
@@ -102,6 +91,8 @@ class App extends StatelessWidget {
 
             home: Builder(
                 builder: (context) {
+                    // remake trayitems tooltips on locale change before command palette and sidebar and their shorcuts
+                    Provider.of<SidebarActionsProvider>(context, listen: false).update(context);
                     return Scaffold(
                         body: Shortcuts(
                             shortcuts: buildShortcuts(context),
@@ -109,8 +100,6 @@ class App extends StatelessWidget {
                                 actions: buildActions(),
                                 child: Builder(
                                     builder: (context) {
-                                        // remake trayitems tooltips on locale change before command palette and sidebar and their shorcuts
-                                        Provider.of<SidebarActionsProvider>(context, listen: false).update(context);
                                         return CommandPalette(
                                             // focus should be below Commandpalette to do not disturb its internal shortcut focus
                                             child: Focus(

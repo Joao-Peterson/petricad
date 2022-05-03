@@ -4,7 +4,6 @@ import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:path/path.dart' as p;
 import 'package:petricad/src/sidebar_actions.dart';
 import 'package:petricad/src/themes.dart';
-import 'package:petricad/widgets/sidebar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io';
 import '../src/cache.dart';
@@ -20,23 +19,7 @@ class Explorer extends StatefulWidget {
 
 class _ExplorerState extends State<Explorer> {
 
-    String? _currentPath = null;
-    late String _currentNode;
-    late List<Node> _nodes;
-    late TreeViewController _treeViewController;
-
-    @override
-    void initState(){
-        if(_currentPath != null){
-            _nodes = _buildNodeList(_currentPath!);
-            _treeViewController = TreeViewController(
-                children: [
-
-                ]
-            );
-        }
-        super.initState();
-    }
+    String? _currentPath;
     
     @override
     Widget build(BuildContext context) {

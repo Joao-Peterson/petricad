@@ -4,12 +4,14 @@
     "toolbarToolsLabel": "Ferramentas",
     "toolbarToolsTooltip": "Ferramentas do programa",
     "toolbarToolsEntryCommandPalette": "Menu de comandos",
+    
     "sidebarActionExplorerTooltip": "Explorador de arquivos",
     "sidebarActionSearchTooltip": "Pesquisar e substituir",
     "sidebarActionToolsTooltip": "Ferramentas",
     "sidebarActionDebugTooltip": "Depuração e visualização",
     "sidebarActionSettingsTooltip": "Configurações (arquivo de texto)",
     "sidebarActionNoneTooltip": "Unknow!",
+    
     "explorerClosedText": "Nenhuma pasta está aberta",
     "explorerClosedButtonLabel": "Abrir pasta",
     "explorerClosedFilePickDialogueTitle": "Selecione uma pasta para abrir",
@@ -20,5 +22,6 @@
     "commandThemeChangeLabel": "Cor: Mudar tema",
     "commandSidebarActionLabel": "Barra lateral: Ações",
     "commandExplorerOpenLabel": "Explorador: Abrir pasta",
-    "commandExplorerCloseLabel": "Explorador: Fechar pasta"
+    "commandExplorerCloseLabel": "Explorador: Fechar pasta",
+    "commandReloadLabel": "Programa: Recarregar recursos"
 }

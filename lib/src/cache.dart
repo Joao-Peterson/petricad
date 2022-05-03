@@ -6,8 +6,15 @@ class CacheProvider extends ChangeNotifier{
     late Map<String, dynamic> _cache;
     late String _filename; 
 
+    // constructor
     CacheProvider({required String filename}){
-        File json = File(filename);
+        _filename = filename;
+        buildCache();
+    }
+
+    // read cache file
+    buildCache(){
+        File json = File(_filename);
         String jsonString = json.readAsStringSync();
 
         jsonString = jsonString.replaceAllMapped(RegExp(r"(://)|[$]", multiLine: false, caseSensitive: false), 
@@ -23,7 +30,7 @@ class CacheProvider extends ChangeNotifier{
         );
         
         _cache = jsonDecode(jsonString);
-        _filename = filename;
+        notifyListeners();
     }
 
     setValue<T>(String configName, T value){

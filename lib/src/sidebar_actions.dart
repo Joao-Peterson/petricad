@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:petricad/src/config.dart';
 import 'package:petricad/src/filemgr.dart';
 import 'package:petricad/src/shortcut_helper.dart';
@@ -9,14 +7,31 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// enumerator defining sidebar actions
+enum SidebarActionEnum{
+    explorer,
+    search,
+    tools,
+    debug,
+    settings,
+    none
+}
+
+// class for a sidebar action
 class SidebarAction{    
-    // members
+    /// type based on the enumerator [SidebarActionEnum]
     final SidebarActionEnum type;
+    /// the icon used for display
     final Icon icon;
+    /// the tooltip
     String tooltip;
+    /// keyboard shortcut, can be [SingleActivator] or [LogicalKeySet]
     ShortcutActivator? shortcut;
+    /// if the sidebar should open to reveal the panel
     bool openSidePanel;
+    /// the widget to display on the opened panel
     Widget? sidePanelWidget;
+    /// optional callback when the icon is pressed 
     void Function(BuildContext context)? onPress;
     bool toTheBottom;
 
@@ -33,15 +48,6 @@ class SidebarAction{
     });
 }
 
-enum SidebarActionEnum{
-    explorer,
-    search,
-    tools,
-    debug,
-    settings,
-    none
-}
-
 class SidebarActionsProvider extends ChangeNotifier{
 
     List<SidebarAction> actions = [
@@ -53,7 +59,6 @@ class SidebarActionsProvider extends ChangeNotifier{
             ),
             openSidePanel: true,
             sidePanelWidget: const Explorer(), 
-            shortcut: const SingleActivator(LogicalKeyboardKey.keyE, control: true),
         ),   
         
         // search
@@ -63,7 +68,6 @@ class SidebarActionsProvider extends ChangeNotifier{
                 Icons.search,
             ),
             openSidePanel: true,
-            shortcut: const SingleActivator(LogicalKeyboardKey.keyR, control: true),
         ),   
         
         // tools
@@ -73,7 +77,6 @@ class SidebarActionsProvider extends ChangeNotifier{
                 Icons.build_sharp,
             ),
             openSidePanel: true,
-            shortcut: const SingleActivator(LogicalKeyboardKey.keyT, control: true),
         ),   
 
         // debug
@@ -83,7 +86,6 @@ class SidebarActionsProvider extends ChangeNotifier{
                 Icons.preview,
             ),
             openSidePanel: true,
-            shortcut: const SingleActivator(LogicalKeyboardKey.keyD, control: true),
         ),   
         
         // settings
@@ -93,6 +95,7 @@ class SidebarActionsProvider extends ChangeNotifier{
                 Icons.settings,
             ),
             toTheBottom: true,
+            // shortcut: SingleActivator(LogicalKeyboardKey.keyK, control: true),
             onPress: (BuildContext context){
                 launchUrl(
                     Uri.file(

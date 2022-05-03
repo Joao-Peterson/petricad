@@ -4,8 +4,7 @@ import 'package:command_palette/command_palette.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
-import 'filemgr.dart';
-import 'default-vscode-theme.dart';
+import 'default_vscode_theme.dart';
 
 class ThemesTheme{
     ThemeData libThemeData;
@@ -29,6 +28,9 @@ class ThemesProvider extends ChangeNotifier{
 
     // current theme
     String _activeThemeKey = _defaultThemeKey;
+
+    // themes directory, passed via constructor
+    late String _themesDir;
 
     // -------------------------------------- Public calls ------------------------ //
 
@@ -64,14 +66,19 @@ class ThemesProvider extends ChangeNotifier{
 
     // constructor
     ThemesProvider({required String themesDir, required String startTheme}){
-        if(!(Directory(themesDir).existsSync())){
+        _activeThemeKey = startTheme;
+        _themesDir = themesDir;
+        buildThemes();
+    }
+
+    // read theme files
+    buildThemes(){
+        if(!(Directory(_themesDir).existsSync())){
             exit(-1);
         }
 
-        _activeThemeKey = startTheme;
-
         // for every json theme file in the themes directory
-        for(var file in Directory(themesDir).listSync(followLinks: false, recursive: false)){
+        for(var file in Directory(_themesDir).listSync(followLinks: false, recursive: false)){
             String themeString = File(file.path).readAsStringSync();
             late Map<String, dynamic> theme;
             
@@ -285,6 +292,8 @@ class ThemesProvider extends ChangeNotifier{
                 )
             );
         }
+
+        notifyListeners();
     }
 
     // -------------------------------------- Private calls ----------------------- //

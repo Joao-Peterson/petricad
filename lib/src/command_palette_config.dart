@@ -2,13 +2,11 @@ import 'package:command_palette/command_palette.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:petricad/src/config.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:petricad/src/sidebar_actions.dart';
-import 'package:petricad/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'themes.dart';
@@ -53,6 +51,14 @@ List<CommandPaletteAction> buildCommandList(BuildContext context){
                 Provider.of<CacheProvider>(context, listen: false).setValue("openFolder", null);
             }
         ),
+        // reload
+        CommandPaletteAction(
+            label: AppLocalizations.of(context)!.commandReloadLabel, 
+            actionType: CommandPaletteActionType.single,
+            onSelect: () {
+                Actions.invoke(context, ReloadIntent(context));
+            }
+        ),
     ];
 }
 
@@ -85,7 +91,7 @@ List<CommandPaletteAction> _buildSidebarActionList(BuildContext context){
                 actionType: CommandPaletteActionType.single,
                 shortcut: action.shortcut != null ? singleActivatorToPrettyStringList(action.shortcut as SingleActivator) : null,
                 onSelect: (){
-                    Actions.invoke(context, SidebarActionIntent(context, action.type));
+                    Actions.invoke(context, SidebarActionIntent(context, action));
                 }
             )
         );
