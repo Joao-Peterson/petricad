@@ -40,6 +40,7 @@ class _SidebarState extends State<Sidebar> {
                     currentItem: _isOpen ? _currentItem : SidebarActionEnum.none,
                 );
 
+                var editor = Editor(leftBorderActive: _isOpen, key: UniqueKey(),);
 
                 Widget? panelChild; 
                 if (_currentItem == null || _currentItem == SidebarActionEnum.none){
@@ -64,7 +65,7 @@ class _SidebarState extends State<Sidebar> {
                                         )
                                     ],
                                 ),
-                                const Editor(leftBorderActive: true)
+                                editor,
                             ],
                             controller: _splitViewController,
                             globalMinimalWeight: 0.2,
@@ -83,8 +84,8 @@ class _SidebarState extends State<Sidebar> {
                     Row( 
                         children: [
                             tray,
-                            const Expanded(
-                                child: Editor()
+                            Expanded(
+                                child: editor,
                             )
                         ],
                     );

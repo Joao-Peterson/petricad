@@ -1,9 +1,15 @@
 {
     "name": "English",
     
+    "aboutLegalese": "This app used an MIT license",
+
     "toolbarToolsLabel": "Tools",
     "toolbarToolsTooltip": "Program tools",
     "toolbarToolsEntryCommandPalette": "Command Palette",
+
+    "toolbarHelpLabel": "Help",
+    "toolbarHelpTooltip": "Program info, help and guides",
+    "toolbarHelpEntryAbout": "About",
 
     "sidebarActionExplorerTooltip": "File explorer",
     "sidebarActionSearchTooltip": "Search and replace",

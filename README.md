@@ -1,16 +1,29 @@
-# petricad
+# Petricad
 
-A new Flutter project.
+This is Petricad, a modern PetriNet editor/simulator/analyser made in flutter for Linux and Windows.
 
-## Getting Started
+# Summary
+- [Petricad](#petricad)
+- [Summary](#summary)
+- [Command palette](#command-palette)
+- [Configuration](#configuration)
+- [Themes](#themes)
 
-This project is a starting point for a Flutter application.
+# Command palette
 
-A few resources to get you started if this is your first Flutter project:
+Access various options and commands via the command palette by pressing `ctrl+p` !
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+# Configuration
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This application automatically creates a config folder named `.petricad` in your home folder.
+
+Examples:
+
+- Windows: `C:\Users\YourUser\.petricad`  
+- Linux: `~/.petricad`  
+
+The file [config.json](assets/config.json) contains configurations about shortcuts/language/[themes](#themes)/etc...
+
+# Themes
+
+Theming is made in an awesome way, you can just drag and drop Visual Studio Code themes (.json files) directly inside `.petricad/themes`, they will be made available upon opening the app or by using the command `Application: Reload resources` using the [command palette](#command-palette).

@@ -1,10 +1,16 @@
 {
     "name": "Português",
     
+    "aboutLegalese": "Este app utiliza uma licença MIT",
+
     "toolbarToolsLabel": "Ferramentas",
     "toolbarToolsTooltip": "Ferramentas do programa",
     "toolbarToolsEntryCommandPalette": "Menu de comandos",
     
+    "toolbarHelpLabel": "Ajuda",
+    "toolbarHelpTooltip": "Informações, ajuda e guias",
+    "toolbarHelpEntryAbout": "Informações",
+
     "sidebarActionExplorerTooltip": "Explorador de arquivos",
     "sidebarActionSearchTooltip": "Pesquisar e substituir",
     "sidebarActionToolsTooltip": "Ferramentas",

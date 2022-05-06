@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:desktop_window/desktop_window.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
+import 'package:petricad/src/licenses.dart';
 import 'package:petricad/src/shortcuts.dart';
 import 'package:petricad/src/sidebar_actions.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,7 @@ import 'src/filemgr.dart';
 import 'src/config.dart';
 import 'src/themes.dart';
 import 'src/command_palette_config.dart';
+import 'src/licenses.dart';
 import 'widgets/toolbar.dart';
 import 'widgets/sidebar.dart';
 import 'widgets/statusbar.dart';
@@ -33,6 +36,14 @@ void main() async{
     await fileMgr.addNewFile("owlet-palenight", "owlet-theme-palenight.json", "themes", 
         defaultContent: await rootBundle.loadString("assets/themes/owlet-theme-palenight.json")
     );
+
+    // licenses
+    LicenseRegistry.addLicense(() async* {
+        yield LicenseEntryWithLineBreaks(
+            licenseOwlet.name,
+            licenseOwlet.license,
+        );
+    });
 
     // get paths for config and themes
     String? configPath = fileMgr.getFilePath("config");

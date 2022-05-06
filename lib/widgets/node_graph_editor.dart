@@ -17,6 +17,7 @@ class _NodeGraphEditorState extends State<NodeGraphEditor> {
         return LayoutBuilder(
             builder: (context, constraints) {
                 return InteractiveViewer(
+                    
                     child: GestureDetector(
                         child: Stack(
                             children: [
