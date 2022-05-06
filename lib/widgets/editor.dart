@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:petricad/widgets/node_graph_editor.dart';
 
 class Editor extends StatelessWidget {
 
@@ -12,6 +13,7 @@ class Editor extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Container(
+            child: const NodeGraphEditor(),
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
                 border: Border(

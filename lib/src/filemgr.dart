@@ -39,7 +39,7 @@ class Filemgr extends ChangeNotifier{
         }
 
         path = envVars[path] ?? _linuxHome;
-        path = p.join(path, "." +  p.basename(Platform.resolvedExecutable));
+        path = p.join(path, "." +  p.basenameWithoutExtension(Platform.resolvedExecutable));
 
         Directory pathDir = Directory(path);
         if(!(await pathDir.exists())){

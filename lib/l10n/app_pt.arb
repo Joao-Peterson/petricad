@@ -10,11 +10,12 @@
     "sidebarActionToolsTooltip": "Ferramentas",
     "sidebarActionDebugTooltip": "Depuração e visualização",
     "sidebarActionSettingsTooltip": "Configurações (arquivo de texto)",
-    "sidebarActionNoneTooltip": "Unknow!",
+    "sidebarActionNoneTooltip": "Unknown!",
     
     "explorerClosedText": "Nenhuma pasta está aberta",
     "explorerClosedButtonLabel": "Abrir pasta",
     "explorerClosedFilePickDialogueTitle": "Selecione uma pasta para abrir",
+    "explorerClosedExceptionText": "Erro: O diretório ou um de seus subdiretórios não pode ser aberto pois seu usuário não possuí os privilégios necessários",
     "explorerOpenFolderPrefix": "Pasta: ",
 
     "commandPaletteInputText": "Digite um comando ...",

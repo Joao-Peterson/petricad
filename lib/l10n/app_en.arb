@@ -10,11 +10,12 @@
     "sidebarActionToolsTooltip": "Tools",
     "sidebarActionDebugTooltip": "Debug and watch",
     "sidebarActionSettingsTooltip": "Settings (text file)",
-    "sidebarActionNoneTooltip": "Unknow!",
+    "sidebarActionNoneTooltip": "Unknown!",
     
-    "explorerClosedText": "No folder currently is opened",
+    "explorerClosedText": "No folder is currently opened",
     "explorerClosedButtonLabel": "Open folder",
     "explorerClosedFilePickDialogueTitle": "Select a folder to open",
+    "explorerClosedExceptionText": "Error: The directory or one of it's subdirectories could not be opened because you user doesn't have the right privileges",
     "explorerOpenFolderPrefix": "Opened: ",
 
     "commandPaletteInputText": "Type a command ...",

@@ -24,19 +24,30 @@ class _ExplorerState extends State<Explorer> {
     @override
     Widget build(BuildContext context) {
 
+        late TreeViewController? _treeViewController;
+        bool noPermission = false;
+
         _currentPath = Provider.of<CacheProvider>(context).getValue<String>("openFolder");
         
-        if(_currentPath == null){
+        try{
+            _treeViewController = _buildTreeViewController(_currentPath);
+        }
+        on FileSystemException{
+            noPermission = true;
+        }
+
+        if(_currentPath == null || noPermission){
+            var padding = const EdgeInsets.fromLTRB(15,15,15,0);
             return Container(
                 alignment: Alignment.topCenter,
                 child: Column(
                     children: [
                         Padding(
-                            padding: const EdgeInsets.fromLTRB(5,20,5,5),
+                            padding: padding,
                             child: Text(AppLocalizations.of(context)!.explorerClosedText),
                         ),
                         Padding(
-                            padding: const EdgeInsets.fromLTRB(5,5,5,20),
+                            padding: padding,
                             child: TextButton(
                                 child: Text(AppLocalizations.of(context)!.explorerClosedButtonLabel),
                                 onPressed: () async {
@@ -48,6 +59,14 @@ class _ExplorerState extends State<Explorer> {
                                     Provider.of<CacheProvider>(context, listen: false).setValue("sidebarIsOpen", true);
                                 }, 
                             ),
+                        ),
+                        Padding(
+                            padding: padding,
+                            child: Text(noPermission ? "\"" + _currentPath! + "\"" : ""),
+                        ),
+                        Padding(
+                            padding: padding,
+                            child: Text(noPermission ? AppLocalizations.of(context)!.explorerClosedExceptionText : ""),
                         ),
                     ],
                 ),
@@ -80,7 +99,7 @@ class _ExplorerState extends State<Explorer> {
                     ),
                     Expanded(
                         child: TreeView(
-                            controller: _buildTreeViewController(_currentPath!),
+                            controller: _treeViewController!,
                             theme: Provider.of<ThemesProvider>(context).getTheme().treeViewThemeData,
                         ),
                     ),
@@ -91,9 +110,20 @@ class _ExplorerState extends State<Explorer> {
 }
 
 // treeViewController builder
-TreeViewController _buildTreeViewController(String dirPath){
+TreeViewController? _buildTreeViewController(String? dirPath){
+
+    List<Node> nodeList;
+    if(dirPath == null){return null;}
+
+    try{
+        nodeList = _buildNodeList(dirPath);
+    }
+    catch (e){
+        rethrow;
+    }
+    
     return TreeViewController(
-        children: _buildNodeList(dirPath),
+        children: nodeList,
         selectedKey: null,
     );
 }
@@ -103,41 +133,46 @@ List<Node> _buildNodeList(String dirPath){
     List<Node> list = [];
     var path = Directory(dirPath);
 
-    for(var entity in path.listSync(recursive: false, followLinks: true)){
-        switch (FileSystemEntity.typeSync(entity.path)){
-            case FileSystemEntityType.directory:
-                list.add(
-                    Node(
-                        key: entity.hashCode.toString(),
-                        label: p.basename(entity.path),
-                        icon: _getIcon(entity),
-                        children: _buildNodeList(entity.path),
-                    )
-                );
-            break;
+    try{
+        for(var entity in path.listSync(recursive: false, followLinks: true)){
+            switch (FileSystemEntity.typeSync(entity.path)){
+                case FileSystemEntityType.directory:
+                    list.add(
+                        Node(
+                            key: entity.hashCode.toString(),
+                            label: p.basename(entity.path),
+                            icon: _getIcon(entity),
+                            children: _buildNodeList(entity.path),
+                        )
+                    );
+                break;
 
-            case FileSystemEntityType.file:
-                list.add(
-                    Node(
-                        key: entity.hashCode.toString(),
-                        label: p.basename(entity.path),
-                        icon: _getIcon(entity),
-                    )
-                );
-            break;
+                case FileSystemEntityType.file:
+                    list.add(
+                        Node(
+                            key: entity.hashCode.toString(),
+                            label: p.basename(entity.path),
+                            icon: _getIcon(entity),
+                        )
+                    );
+                break;
 
-            case FileSystemEntityType.link:
-            case FileSystemEntityType.notFound:
-            default:
-                list.add(
-                    Node(
-                        key: entity.hashCode.toString(),
-                        label: p.basename(entity.path),
-                        icon: _getIcon(entity),
-                    )
-                );            
-            break;
+                case FileSystemEntityType.link:
+                case FileSystemEntityType.notFound:
+                default:
+                    list.add(
+                        Node(
+                            key: entity.hashCode.toString(),
+                            label: p.basename(entity.path),
+                            icon: _getIcon(entity),
+                        )
+                    );            
+                break;
+            }
         }
+    }
+    catch (e) {
+        rethrow;
     }
 
     list = _sortNodeList(list);
