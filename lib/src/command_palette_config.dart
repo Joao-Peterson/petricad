@@ -1,7 +1,6 @@
 import 'package:command_palette/command_palette.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:petricad/src/actions.dart';
 import 'package:petricad/src/cache.dart';
 import 'package:petricad/src/config.dart';
@@ -125,8 +124,8 @@ List<CommandPaletteAction> _buildThemeList(BuildContext context){
 CommandPaletteConfig buildCommandConfig(BuildContext context){
 
     return CommandPaletteConfig(
-        openKeySet: LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP),
-        closeKeySet: LogicalKeySet(LogicalKeyboardKey.escape),
+        openKeySet: logicalKeySetFromString(Provider.of<ConfigProvider>(context).getConfig("shortcuts.commandPaletteOpen")),
+        closeKeySet: logicalKeySetFromString(Provider.of<ConfigProvider>(context).getConfig("shortcuts.commandPaletteClose")),
         transitionDuration: Duration.zero,
         style: Provider.of<ThemesProvider>(context).getTheme().commandPaletteStyleData,
     );

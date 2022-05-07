@@ -21,7 +21,7 @@ class ThemesTheme{
 class ThemesProvider extends ChangeNotifier{
 
     // map for all loaded themes
-    Map<String, ThemesTheme> _themes = {};
+    final Map<String, ThemesTheme> _themes = {};
 
     // default theme
     static const String _defaultThemeKey = "Owlet (Palenight)";

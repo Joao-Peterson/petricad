@@ -23,7 +23,7 @@ import 'widgets/statusbar.dart';
 
 void main() async{
 
-    // make sure to initialize the framework binding before DesktopWindow calls
+    // make sure to initialize the framework binding 
     WidgetsFlutterBinding.ensureInitialized();
 
     // files

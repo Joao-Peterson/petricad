@@ -25,6 +25,8 @@ class _SidebarState extends State<Sidebar> {
     SidebarActionEnum? _currentItem = SidebarActionEnum.none;
     final MultiSplitViewController _splitViewController = MultiSplitViewController(weights: [0.3, 0.7]);
 
+    final editorKey = GlobalKey();
+
     @override
     Widget build(BuildContext context){
         
@@ -36,12 +38,15 @@ class _SidebarState extends State<Sidebar> {
             builder: (context, constraints) {
 
                 var tray = Tray(
-                    key: UniqueKey(), 
                     currentItem: _isOpen ? _currentItem : SidebarActionEnum.none,
                 );
 
-                var editor = Editor(leftBorderActive: _isOpen, key: UniqueKey(),);
+                var editor = Editor(
+                    key: editorKey,
+                    leftBorderActive: _isOpen, 
+                );
 
+                // TODO: panel widget state is not preserved, if this becomes annoying better instatiate the panels first
                 Widget? panelChild; 
                 if (_currentItem == null || _currentItem == SidebarActionEnum.none){
                     panelChild = null;
