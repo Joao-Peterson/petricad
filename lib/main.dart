@@ -112,19 +112,15 @@ class App extends StatelessWidget {
                                 child: Builder(
                                     builder: (context) {
                                         return CommandPalette(
-                                            // focus should be below Commandpalette to do not disturb its internal shortcut focus
-                                            child: Focus(
-                                                autofocus: true,
-                                                child: Column(children: const [
-                                                    Toolbar(),
-                                                    Expanded(
-                                                        child: Sidebar()
-                                                    ),
-                                                    Statusbar()
-                                                ],),
-                                            ),
-                                            config: buildCommandConfig(context),
-                                            actions: buildCommandList(context),
+                                            child: Column(children: const [
+                                                Toolbar(),
+                                                Expanded(
+                                                    child: Sidebar()
+                                                ),
+                                                Statusbar()
+                                            ],),
+                                        config: buildCommandConfig(context),
+                                        actions: buildCommandList(context),
                                         );
                                     }
                                 ),
