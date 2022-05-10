@@ -1,13 +1,35 @@
 {
     "visual": {
-        "theme": "Nanowise"
+        "theme": "Pink Cat Boo"
     },
     "locale": {
         "languageCode": "en",
         "countryCode": null,
         "scriptCode": null
     },
+    "mouse": {
+        // Key that enables scroll on the editor
+        // Type: String, single key only
+        "editorScrollKey": "shift",
+        
+        // Key that enables zoom on the editor
+        // Type: String, single key only
+        "editorZoomKey": "ctrl",
+        
+        // If the zoom scroll is reverses
+        // Type: Bool, not null
+        "editorZoomReversed": true,
+
+        // How much zoom is given for every discrete scroll
+        // Type: Double, not null
+        "editorZoomSensibility": 1.0,
+    },
+
+    // every shortcut is a combination of modifiers + a single key
+    // Type: String or null, for no shortcut
     "shortcuts": {
+        "commandPaletteOpen": "ctrl+p",
+        "commandPaletteClose": "ctrl+l",
         "sidebarToggleOpen": "ctrl+b",
         "sidebarActionExplorer": "ctrl+e",
         "sidebarActionSearch": "ctrl+r",

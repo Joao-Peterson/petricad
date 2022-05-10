@@ -678,7 +678,6 @@ class CustomScrollableState extends State<CustomScrollable> with TickerProviderS
     return delta;
   }
 
-    // TODO: scroll handle
   void _receivedPointerSignal(PointerSignalEvent event) {
       // ignore: unnecessary_null_comparison
       if((widget.scrollKey == null) || ((widget.scrollKey != null) && widget.scrollKey == true)){
@@ -733,7 +732,6 @@ class CustomScrollableState extends State<CustomScrollable> with TickerProviderS
       scrollable: this,
       position: position,
       child: Listener(
-          // TODO: widget.customPointerSignalHandler ?? _receivedPointerSignal
         onPointerSignal: _receivedPointerSignal,
         child: RawGestureDetector(
           key: _gestureDetectorKey,

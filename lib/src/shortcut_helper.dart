@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 
 List<String> singleActivatorToPrettyStringList(SingleActivator shortcut){
@@ -217,5 +218,27 @@ LogicalKeySet? logicalKeySetFromString(String? shortcutString){
     }
     else{
         return null;
+    }
+}
+
+int? mouseButtonFromString(String button){
+    switch (button){
+        case "left":
+            return kPrimaryMouseButton;
+            
+        case "right":
+            return kSecondaryMouseButton;
+
+        case "middle":
+            return kMiddleMouseButton;
+
+        case "back":
+            return kBackMouseButton;
+
+        case "forward":
+            return kForwardMouseButton;
+
+        default :
+            return null;
     }
 }
