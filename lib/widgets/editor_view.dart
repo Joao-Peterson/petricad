@@ -17,8 +17,23 @@ class EditorViewController{
         yScrollController = ScrollController();
     }
 
-    Offset getViewportOffset(){
+    Offset getScrollOffset(){
         return Offset(xScrollController.position.pixels, yScrollController.position.pixels);
+    }
+
+    Size getScrollSize(){
+        return Size(xScrollController.position.maxScrollExtent, yScrollController.position.maxScrollExtent);
+    }
+
+    void setScrollOffset(Offset offset){
+
+        var xMinScrollExtent = xScrollController.position.minScrollExtent;
+        var xMaxScrollExtent = xScrollController.position.maxScrollExtent;
+        var yMinScrollExtent = yScrollController.position.minScrollExtent;
+        var yMaxScrollExtent = yScrollController.position.maxScrollExtent;
+
+        xScrollController.position.jumpTo(mathBound(offset.dx, xMinScrollExtent, xMaxScrollExtent));
+        yScrollController.position.jumpTo(mathBound(offset.dy, yMinScrollExtent, yMaxScrollExtent));
     }
 }
 
@@ -26,10 +41,8 @@ class EditorView extends StatefulWidget {
 
     final List<Widget> children;
     final Size size;
-    final bool? isAlwaysShown;
+    final bool? thumbVisibility;
     final bool? trackVisibility;
-    final bool? showTrackOnHover;
-    final double? hoverThickness;
     final double? thickness;
     final Radius? radius;
     final bool? interactive;
@@ -44,10 +57,8 @@ class EditorView extends StatefulWidget {
         required this.size,
         required this.controller,
         required this.children,
-        this.isAlwaysShown = false,
+        this.thumbVisibility = false,
         this.trackVisibility = false,
-        this.showTrackOnHover = true,
-        this.hoverThickness = 8,
         this.thickness = 8,
         this.radius = const Radius.circular(8),
         this.interactive = true,
@@ -70,8 +81,12 @@ class _EditorViewState extends State<EditorView> {
     bool _scrollKeyState = false;
     bool _scrollPanKeyState = false;
     bool _zoomKeyState = false;
+
+    Offset _viewPortTopLeftToEditorTopLeft = Offset.zero;
+    Size _viewPortSize = Size.zero;
+
     double _scale = 1.0;
-    Offset _pointerPositionOnScrollStart = Offset.zero;
+    double _prevScale = 1.0;
 
     List<Offset> _offsets = [];
 
@@ -95,6 +110,7 @@ class _EditorViewState extends State<EditorView> {
                     child: RawKeyboardListener(
                         child: LayoutBuilder(
                             builder: (context, constraints) {
+                                _viewPortSize = Size(constraints.maxWidth, constraints.maxHeight);
                                 return Scrollbar(
                                     child: CustomSingleChildScrollView(
                                         child: ChangeNotifierProvider(
@@ -107,7 +123,7 @@ class _EditorViewState extends State<EditorView> {
                                                                 width: widget.size.width*_scale,
                                                                 decoration: BoxDecoration(
                                                                     border: Border.all(
-                                                                        width: 1 * 1/_scale,
+                                                                        width: 1,
                                                                         color: Colors.amber,
                                                                     )
                                                                 ),
@@ -119,10 +135,10 @@ class _EditorViewState extends State<EditorView> {
                                                             controller: widget.controller.xScrollController,
                                                             scrollDirection: Axis.horizontal,
                                                         ),
-                                                        isAlwaysShown: widget.isAlwaysShown,
+                                                        thumbVisibility: widget.thumbVisibility,
                                                         trackVisibility: widget.trackVisibility,
-                                                        showTrackOnHover: widget.showTrackOnHover,
-                                                        hoverThickness: widget.hoverThickness,
+                                                        showTrackOnHover: true,
+                                                        hoverThickness: 8,
                                                         thickness: widget.thickness,
                                                         radius: widget.radius,
                                                         interactive: widget.interactive,
@@ -140,10 +156,9 @@ class _EditorViewState extends State<EditorView> {
                                         scrollDirection: Axis.vertical,
                                     ),
                                     controller: widget.controller.yScrollController,
-                                    isAlwaysShown: widget.isAlwaysShown,
+
+                                    thumbVisibility: widget.thumbVisibility,
                                     trackVisibility: widget.trackVisibility,
-                                    showTrackOnHover: widget.showTrackOnHover,
-                                    hoverThickness: widget.hoverThickness,
                                     thickness: widget.thickness,
                                     radius: widget.radius,
                                     interactive: widget.interactive,
@@ -169,8 +184,7 @@ class _EditorViewState extends State<EditorView> {
                         ),
                         onPressed: (){
                             _scale = 1.0;
-                            widget.controller.xScrollController.position.jumpTo(0.0);
-                            widget.controller.yScrollController.position.jumpTo(0.0);
+                            widget.controller.setScrollOffset(Offset.zero);
                             setState(() {});
                         }, 
                     ),
@@ -183,37 +197,31 @@ class _EditorViewState extends State<EditorView> {
         List<Widget> list = [];
 
         for(var child in children){
-
-            var transChild = Transform(
-                transform: Matrix4(
-                    _scale  , 0     , 0     , 0,
-                    0       , _scale, 0     , 0,
-                    0       , 0     , 0     , 0,
-                    0       , 0     , 0     , 1
-                ),
-                child: child,
-            );
-
             list.add(
                 Positioned(
-                    top: _offsets[children.indexOf(child)].dy,
-                    left: _offsets[children.indexOf(child)].dx,
-                    child: Draggable(
-                        maxSimultaneousDrags: 1,
-                        childWhenDragging: Opacity(
-                            opacity: .6,
-                            child: transChild,
+                    top: _offsets[children.indexOf(child)].dy * _scale,
+                    left: _offsets[children.indexOf(child)].dx * _scale,
+                    child: Transform.scale(
+                        scale: _scale,
+                        alignment: AlignmentDirectional.topStart,
+                        child: Draggable(
+                            maxSimultaneousDrags: 1,
+                            childWhenDragging: Opacity(
+                                opacity: .6,
+                                child: child,
+                            ),
+                            // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
+                            feedback: Transform.scale(
+                                alignment: AlignmentDirectional.topStart,
+                                scale: _scale,
+                                child: child
+                            ),
+                            onDragEnd: (drag) {
+                                _offsets[children.indexOf(child)] = _correctOffset(drag.offset, viewPortConstrains, const Size(50,50));
+                                setState(() {});
+                            },
+                            child: child,
                         ),
-                        // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
-                        feedback: Transform.scale(
-                            scale: _scale,
-                            child: transChild
-                        ),
-                        onDragEnd: (drag) {
-                            _offsets[children.indexOf(child)] = _correctOffset(drag.offset, viewPortConstrains, const Size(50,50));
-                            setState(() {});
-                        },
-                        child: transChild,
                     ),
                 ),
             );
@@ -223,63 +231,49 @@ class _EditorViewState extends State<EditorView> {
     }
 
     Offset _correctOffset(Offset dragViewPortOffset, BoxConstraints viewPortConstrains, Size widgetSize){
-        var viewPortOffset = widget.controller.getViewportOffset();
+        var scrollOffset = widget.controller.getScrollOffset();
 
         // correct drag pointer so the offset is relative to the top left of the widget
         var dx = (dragViewPortOffset.dx) - widgetSize.width;
         var dy = (dragViewPortOffset.dy) - (widgetSize.height/2);
 
-        dx += viewPortOffset.dx;
-        dy += viewPortOffset.dy;
+        dx /= _scale;
+        dy /= _scale;
+
+        dx += scrollOffset.dx;
+        dy += scrollOffset.dy;
         
         return Offset(dx,dy);
     }
 
-    // keep a double inside a min and max limit
-    double _mathBound(double value, double min, double max){
-        return math.max(math.min(value, max), min);
+    void _handleScroll(PointerSignalEvent event){
+        if(event is PointerScrollEvent){
+            _handleZoom(event.scrollDelta.dy/1000);
+        }
     }
 
-    void _handleScroll(PointerSignalEvent event){
-        // TODO: add min and max width and height for scaled area, should be small than layoutBuilder constrain area, logic breaks when full zoom out
+    void _handleZoom(double scale){
         if(widget.zoomKey == null || (widget.zoomKey != null && _zoomKeyState)){
-            if(event is PointerScrollEvent){
-                var newScale = _mathBound(_scale + (widget.zoomReversed ? -1 : 1) * event.scrollDelta.dy/1000*widget.zoomSensibility!, 0.1, 10.0);
-                _pointerPositionOnScrollStart = event.localPosition;
 
-                var xScroll = widget.controller.xScrollController.position.pixels;
-                var yScroll = widget.controller.yScrollController.position.pixels;
+            var newScale = mathBound(_scale + (widget.zoomReversed ? -1 : 1) * scale*widget.zoomSensibility!, 0.1, 10.0);
 
-                if(newScale < _scale){
-                    xScroll /= _scale;
-                    yScroll /= _scale;
-                    xScroll += event.localPosition.dx/_scale;
-                    yScroll += event.localPosition.dy/_scale;
-                }
-                else{
-                    xScroll *= _scale;
-                    yScroll *= _scale;
-                    xScroll -= event.localPosition.dx*_scale;
-                    yScroll -= event.localPosition.dy*_scale;
-                }
+            // _viewPortTopLeftToEditorTopLeft = widget.controller.getScrollOffset() * _scale;
+            // var mousePos = event.localPosition * _scale;
 
-                var xMinScrollExtent = widget.controller.xScrollController.position.minScrollExtent;
-                var xMaxScrollExtent = widget.controller.xScrollController.position.maxScrollExtent;
-                var yMinScrollExtent = widget.controller.yScrollController.position.minScrollExtent;
-                var yMaxScrollExtent = widget.controller.yScrollController.position.maxScrollExtent;
+            // widget.controller.setScrollOffset(
+            //     (_viewPortTopLeftToEditorTopLeft*newScale) + (Offset(_viewPortSize.width,_viewPortSize.height)/2*(newScale-1))
+            // );
 
-                widget.controller.xScrollController.position.jumpTo(_mathBound(xScroll, xMinScrollExtent, xMaxScrollExtent));
-                widget.controller.yScrollController.position.jumpTo(_mathBound(yScroll, yMinScrollExtent, yMaxScrollExtent));
-                _scale = newScale;
-                setState(() {});
-            }
+            _prevScale = _scale;
+            _scale = newScale;
+
+            setState(() {});
         }
     }
 
     void _handlePointerMove(PointerMoveEvent event){
         if(_scrollPanKeyState){
-            widget.controller.xScrollController.position.jumpTo(widget.controller.xScrollController.position.pixels - event.delta.dx);
-            widget.controller.yScrollController.position.jumpTo(widget.controller.yScrollController.position.pixels - event.delta.dy);
+            widget.controller.setScrollOffset(widget.controller.getScrollOffset() - event.delta);
             setState(() {});
         }
     }
@@ -320,4 +314,9 @@ class _EditorViewState extends State<EditorView> {
             }
         }
     }
+}
+
+// keep a double inside a min and max limit
+double mathBound(double value, double min, double max){
+    return math.max(math.min(value, max), min);
 }

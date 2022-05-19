@@ -18,7 +18,7 @@ class CustomPaddingScrollbar extends StatelessWidget {
     Key? key,
     required this.child,
     this.controller,
-    this.isAlwaysShown,
+    this.thumbVisibility,
     this.trackVisibility,
     this.showTrackOnHover,
     this.hoverThickness,
@@ -34,7 +34,7 @@ class CustomPaddingScrollbar extends StatelessWidget {
   
   final ScrollController? controller;
   
-  final bool? isAlwaysShown;
+  final bool? thumbVisibility;
 
   final bool? trackVisibility;
   
@@ -58,7 +58,7 @@ class CustomPaddingScrollbar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Theme.of(context).platform == TargetPlatform.iOS) {
       return CupertinoScrollbar(
-        isAlwaysShown: isAlwaysShown ?? false,
+        thumbVisibility: thumbVisibility ?? false,
         thickness: thickness ?? CupertinoScrollbar.defaultThickness,
         thicknessWhileDragging: thickness ?? CupertinoScrollbar.defaultThicknessWhileDragging,
         radius: radius ?? CupertinoScrollbar.defaultRadius,
@@ -71,7 +71,7 @@ class CustomPaddingScrollbar extends StatelessWidget {
     }
     return _MaterialCustomPaddingScrollbar(
       controller: controller,
-      isAlwaysShown: isAlwaysShown,
+      thumbVisibility: thumbVisibility,
       trackVisibility: trackVisibility,
       showTrackOnHover: showTrackOnHover,
       hoverThickness: hoverThickness,
@@ -91,7 +91,7 @@ class _MaterialCustomPaddingScrollbar extends CustomPaddingRawScrollbar {
     Key? key,
     required Widget child,
     ScrollController? controller,
-    bool? isAlwaysShown,
+    bool? thumbVisibility,
     this.trackVisibility,
     this.showTrackOnHover,
     this.hoverThickness,
@@ -105,7 +105,7 @@ class _MaterialCustomPaddingScrollbar extends CustomPaddingRawScrollbar {
          key: key,
          child: child,
          controller: controller,
-         isAlwaysShown: isAlwaysShown,
+         thumbVisibility: thumbVisibility,
          thickness: thickness,
          radius: radius,
          fadeDuration: _kScrollbarFadeDuration,
@@ -135,12 +135,12 @@ class _MaterialScrollbarState extends CustomPaddingRawScrollbarState<_MaterialCu
   late bool _useAndroidScrollbar;
 
   @override
-  bool get showScrollbar => widget.isAlwaysShown ?? _scrollbarTheme.isAlwaysShown ?? false;
+  bool get showScrollbar => widget.thumbVisibility ?? false;
 
   @override
   bool get enableGestures => widget.interactive ?? _scrollbarTheme.interactive ?? !_useAndroidScrollbar;
 
-  bool get _showTrackOnHover => widget.showTrackOnHover ?? _scrollbarTheme.showTrackOnHover ?? false;
+  bool get _showTrackOnHover => widget.showTrackOnHover ?? false;
 
   MaterialStateProperty<bool> get _trackVisibility => MaterialStateProperty.resolveWith((Set<MaterialState> states) {
     if (states.contains(MaterialState.hovered) && _showTrackOnHover) {

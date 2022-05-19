@@ -206,6 +206,8 @@ class ThemesProvider extends ChangeNotifier{
                     scrollbarTheme: ScrollbarThemeData(
                         // TODO: review scrollbar color
                         thumbColor: MaterialStateProperty.all<Color>(_getThemeColor(theme,"list.activeSelectionBackground")),
+                        trackVisibility: MaterialStateProperty.all(true),
+                        thickness: MaterialStateProperty.all(8),
                     ),
 
                     textTheme: TextTheme(

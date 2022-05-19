@@ -17,7 +17,7 @@ class CustomPaddingRawScrollbar extends StatefulWidget {
     Key? key,
     required this.child,
     this.controller,
-    this.isAlwaysShown,
+    this.thumbVisibility,
     this.shape,
     this.radius,
     this.thickness,
@@ -44,7 +44,7 @@ class CustomPaddingRawScrollbar extends StatefulWidget {
 
   final ScrollController? controller;
 
-  final bool? isAlwaysShown;
+  final bool? thumbVisibility;
 
   final OutlinedBorder? shape;
 
@@ -93,7 +93,7 @@ class CustomPaddingRawScrollbarState<T extends CustomPaddingRawScrollbar> extend
   late final _CustomMarginScrollbarPainter scrollbarPainter;
 
   @protected
-  bool get showScrollbar => widget.isAlwaysShown ?? false;
+  bool get showScrollbar => widget.thumbVisibility ?? false;
 
   @protected
   bool get enableGestures => widget.interactive ?? true;
@@ -134,7 +134,7 @@ class CustomPaddingRawScrollbarState<T extends CustomPaddingRawScrollbar> extend
     if (!showScrollbar){
       return true;
     }
-    WidgetsBinding.instance!.addPostFrameCallback((Duration duration) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration duration) {
       assert(_debugCheckHasValidScrollPosition());
     });
     return true;
@@ -259,8 +259,8 @@ class CustomPaddingRawScrollbarState<T extends CustomPaddingRawScrollbar> extend
   @override
   void didUpdateWidget(T oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isAlwaysShown != oldWidget.isAlwaysShown) {
-      if (widget.isAlwaysShown == true) {
+    if (widget.thumbVisibility != oldWidget.thumbVisibility) {
+      if (widget.thumbVisibility == true) {
         assert(_debugScheduleCheckHasValidScrollPosition());
         _fadeoutTimer?.cancel();
         _fadeoutAnimationController.animateTo(1.0);
@@ -644,6 +644,7 @@ class CustomPaddingRawScrollbarState<T extends CustomPaddingRawScrollbar> extend
                   case PointerDeviceKind.invertedStylus:
                   case PointerDeviceKind.unknown:
                   case PointerDeviceKind.touch:
+                  case PointerDeviceKind.trackpad:
                     break;
                 }
               },
@@ -658,6 +659,7 @@ class CustomPaddingRawScrollbarState<T extends CustomPaddingRawScrollbar> extend
                   case PointerDeviceKind.invertedStylus:
                   case PointerDeviceKind.unknown:
                   case PointerDeviceKind.touch:
+                  case PointerDeviceKind.trackpad:
                     break;
                 }
               },
@@ -1242,6 +1244,7 @@ class _CustomMarginScrollbarPainter extends ChangeNotifier implements CustomPain
       case PointerDeviceKind.stylus:
       case PointerDeviceKind.invertedStylus:
       case PointerDeviceKind.unknown:
+      case PointerDeviceKind.trackpad:
         return interactiveRect.contains(position);
     }
   }
@@ -1272,6 +1275,7 @@ class _CustomMarginScrollbarPainter extends ChangeNotifier implements CustomPain
       case PointerDeviceKind.stylus:
       case PointerDeviceKind.invertedStylus:
       case PointerDeviceKind.unknown:
+      case PointerDeviceKind.trackpad:
         return _thumbRect!.contains(position);
     }
   }

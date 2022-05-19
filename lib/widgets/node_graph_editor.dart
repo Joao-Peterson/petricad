@@ -5,7 +5,6 @@ import 'package:petricad/src/config.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:petricad/widgets/editor_view.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 class NodeGraphEditor extends StatefulWidget {
     const NodeGraphEditor({Key? key}) : super(key: key);
@@ -29,7 +28,7 @@ class _NodeGraphEditorState extends State<NodeGraphEditor> {
         final _scrollKey = logicalKeySetFromString(Provider.of<ConfigProvider>(context).getConfig("mouse.editorScrollKey"))?.keys.first;
         final _panKey = mouseButtonFromString(Provider.of<ConfigProvider>(context).getConfig("mouse.editorPanKey")) ?? kMiddleMouseButton;
         final _zoomKey = logicalKeySetFromString(Provider.of<ConfigProvider>(context).getConfig("mouse.editorZoomKey"))?.keys.first ?? LogicalKeyboardKey.control;
-        final _zoomSensibility = _mathBound((Provider.of<ConfigProvider>(context).getConfig("mouse.editorZoomSensibility") ?? 1.0) as double, 0.1, 100.0);
+        final _zoomSensibility = mathBound((Provider.of<ConfigProvider>(context).getConfig("mouse.editorZoomSensibility") ?? 1.0) as double, 0.1, 100.0);
         final _zoomReversed = Provider.of<ConfigProvider>(context).getConfig("mouse.editorZoomReversed") ?? false;
 
         return 
@@ -39,7 +38,7 @@ class _NodeGraphEditorState extends State<NodeGraphEditor> {
                     box,
                     box2
                 ],
-                isAlwaysShown: true,
+                thumbVisibility: true,
                 controller: biController,
                 scrollKey: _scrollKey,
                 panKey: _panKey,
@@ -47,9 +46,5 @@ class _NodeGraphEditorState extends State<NodeGraphEditor> {
                 zoomSensibility: _zoomSensibility,
                 zoomReversed: _zoomReversed
             );
-    }
-
-    double _mathBound(double value, double min, double max){
-        return math.max(math.min(value, max), min);
     }
 }
