@@ -16,7 +16,6 @@ import 'src/filemgr.dart';
 import 'src/config.dart';
 import 'src/themes.dart';
 import 'src/command_palette_config.dart';
-import 'src/licenses.dart';
 import 'widgets/toolbar.dart';
 import 'widgets/sidebar.dart';
 import 'widgets/statusbar.dart';
@@ -112,7 +111,7 @@ class App extends StatelessWidget {
                                 child: Builder(
                                     builder: (context) {
                                         return CommandPalette(
-                                            child: Column(children: const [
+                                            child: const Column(children: [
                                                 Toolbar(),
                                                 Expanded(
                                                     child: Sidebar()

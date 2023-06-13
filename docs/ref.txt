@@ -1,0 +1,10 @@
+# Ref tools
+http://cpntools.org
+https://www.oris-tool.org
+https://pipe2.sourceforge.net
+https://sourceforge.net/projects/petrilab/
+
+# PNML
+https://www.pnml.org/version-2009/version-2009.php
+https://www.pnml.org/papers/PNML-Tutorial.pdf
+https://www.pnml.org/papers/PNML-EKA06.V3.pdf
