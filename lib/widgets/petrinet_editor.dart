@@ -3,6 +3,8 @@ import 'package:petricad/src/config.dart';
 import 'package:petricad/src/petrinet.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:provider/provider.dart';
+import 'place_widget.dart';
+import 'transition_widget.dart';
 
 class Node{
     Offset offset;
@@ -113,57 +115,44 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
 
     List<Widget> _buildNodes(double scale){
         List<Widget> list = [];
+        List<Widget> widgets = [];
+        List<PetrinetNode> nodes = [];
 
         // places
         for(var place in _petrinet.places){
-            
-            var widget = Container(decoration: const ShapeDecoration(shape: CircleBorder(eccentricity: 0), color: Colors.blue), width: 100, height: 100);
-
-            list.add(
-                Positioned(
-                    top: place.offsetY,
-                    left: place.offsetX,
-                    child: Draggable<PetrinetNode>(
-                        maxSimultaneousDrags: 1,
-                        childWhenDragging: Opacity(
-                            opacity: .6,
-                            child: widget,
-                        ),
-                        dragAnchorStrategy: pointerDragAnchorStrategy, 
-                        // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
-                        feedback: Transform.scale(scale: scale, child: widget),
-                        data: place,
-                        child: widget,
-                    ),
-                ),
-            );
+            var widget = PlaceWidget(place.name, place.init);
+            list.add(widget);
+            nodes.add(place);
         }
 
         // transitions
         for(var transition in _petrinet.transitions){
-            
-            var widget = Container(decoration: const ShapeDecoration(shape: RoundedRectangleBorder(), color: Colors.red), width: 100, height: 100);
-
-            list.add(
+            var widget = TransitionWidget(transition.name, "${transition.inputEvt?.toString() ?? ''}", transition.delay);
+            list.add(widget);
+            nodes.add(transition);
+        }
+        
+        for(var i = 0; i < list.length; i++){
+            widgets.add(
                 Positioned(
-                    top: transition.offsetY,
-                    left: transition.offsetX,
+                    top: nodes[i].offsetY,
+                    left: nodes[i].offsetX,
                     child: Draggable<PetrinetNode>(
                         maxSimultaneousDrags: 1,
                         childWhenDragging: Opacity(
                             opacity: .6,
-                            child: widget,
+                            child: list[i],
                         ),
                         dragAnchorStrategy: pointerDragAnchorStrategy, 
                         // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
-                        feedback: Transform.scale(scale: scale, child: widget),
-                        data: transition,
-                        child: widget,
+                        feedback: Transform.scale(scale: scale, child: list[i], alignment: Alignment.topLeft),
+                        data: nodes[i],
+                        child: list[i],
                     ),
-                ),
+                )
             );
         }
 
-        return list;
+        return widgets;
     }
 }
