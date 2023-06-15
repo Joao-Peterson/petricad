@@ -75,13 +75,13 @@ class Petrinet{
         outputNames = [];
     }
 
-    void addPlace(){
-        places.add(PetrinetPlace("p$_placeIndex", 0, 0, 0));
+    void addPlace({double? dx, double? dy}){
+        places.add(PetrinetPlace("p$_placeIndex", dx ?? 0, dy ?? 0, 0));
         _placeIndex++;
     }
 
-    void addTransition(){
-        transitions.add(PetrinetTransition("t$_transitionIndex", 0, 0, 0, null, null));
+    void addTransition({double? dx, double? dy}){
+        transitions.add(PetrinetTransition("t$_transitionIndex", dx ?? 0, dy ?? 0, 0, null, null));
         _transitionIndex++;
     }
 

@@ -6,8 +6,8 @@ import 'package:petricad/src/sidebar_actions.dart';
 import 'package:provider/provider.dart';
 import 'actions.dart';
 
-// shortcut list
-Map<ShortcutActivator, Intent> buildShortcuts(BuildContext context){
+// global shortcuts
+Map<ShortcutActivator, Intent> buildGlobalShortcuts(BuildContext context){
     Map<ShortcutActivator, Intent> shortcuts = {
         singleActivatorFromString(Provider.of<ConfigProvider>(context).getConfig<String>("shortcuts.sidebarToggleOpen")) ?? const SingleActivator(LogicalKeyboardKey.keyP): SidebarToggleOpenIntent(context),
     };

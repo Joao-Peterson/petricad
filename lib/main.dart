@@ -87,7 +87,8 @@ class App extends StatelessWidget {
 
     @override
     Widget build(BuildContext context) {
-        
+        // debugFocusChanges = true;
+
         return MaterialApp(
             title: "PetriCAD",
             theme: Provider.of<ThemesProvider>(context).getTheme().libThemeData,
@@ -98,32 +99,39 @@ class App extends StatelessWidget {
                 countryCode: Provider.of<ConfigProvider>(context).getConfig("locale.countryCode"),
                 scriptCode: Provider.of<ConfigProvider>(context).getConfig("locale.scriptCode"),
             ),
-
+            shortcuts: buildGlobalShortcuts(context),
+            actions: buildActions(),
             home: Builder(
                 builder: (context) {
                     // remake trayitems tooltips on locale change before command palette and sidebar and their shorcuts
                     Provider.of<SidebarActionsProvider>(context, listen: false).update(context);
                     return Scaffold(
-                        body: Shortcuts(
-                            shortcuts: buildShortcuts(context),
-                            child: Actions(
-                                actions: buildActions(),
-                                child: Builder(
-                                    builder: (context) {
-                                        return CommandPalette(
-                                            child: const Column(children: [
-                                                Toolbar(),
-                                                Expanded(
-                                                    child: Sidebar()
-                                                ),
-                                                Statusbar()
-                                            ],),
-                                        config: buildCommandConfig(context),
-                                        actions: buildCommandList(context),
-                                        );
-                                    }
-                                ),
-                            ),
+                        body: Builder(
+                            builder: (context) {
+                                return CommandPalette(
+                                    child: Focus(
+                                        canRequestFocus: true,
+                                        autofocus: true,
+                                        debugLabel: "whole_screen_focus",
+                                        descendantsAreFocusable: true,
+                                        child: Builder(
+                                            builder: (context) {
+                                                // Focus.of(context).requestFocus();
+
+                                                return const Column(children: [
+                                                    Toolbar(),
+                                                    Expanded(
+                                                        child: Sidebar()
+                                                    ),
+                                                    Statusbar()
+                                                ],);
+                                            }
+                                        ),
+                                    ),
+                                    config: buildCommandConfig(context),
+                                    actions: buildCommandList(context),
+                                );
+                            }
                         ),
                     );
                 }

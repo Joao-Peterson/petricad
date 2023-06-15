@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:petricad/src/config.dart';
 import 'package:petricad/src/petrinet.dart';
 import 'package:petricad/src/shortcut_helper.dart';
 import 'package:provider/provider.dart';
 import 'place_widget.dart';
 import 'transition_widget.dart';
+
+enum PetrinetEditorInserts{
+    place,
+    transition,
+    arcWeighted,
+    arcNot,
+    arcReset
+}
+
+// editor place intent
+class EditorPlaceIntent extends Intent{
+    final PetrinetEditorInserts insert;
+    final Offset pos;
+    const EditorPlaceIntent(this.insert, this.pos);
+}
 
 class Node{
     Offset offset;
@@ -38,79 +54,146 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
     final _transformationController = TransformationController();
     late Petrinet _petrinet;
 
+    var _lastMousePosOnKeypress = const Offset(0, 0);
+    RenderBox? _editorRenderBox;
+
     @override
     void initState() {
         _petrinet = Petrinet(); 
-        _petrinet.addPlace();
-        _petrinet.addTransition();
         super.initState();
     }
 
     @override
     Widget build(BuildContext context){
-        FocusNode _editorFocus = FocusNode();
-        FocusScope.of(context).requestFocus(_editorFocus);
 
-        return Stack(children: [
-            Listener(child: RawKeyboardListener(
-                child: InteractiveViewer(
-                    child: LayoutBuilder(
-                        builder: (context, constraints) {
-                            var scale = _transformationController.value.storage[0];
-                            var widgets = _buildNodes(scale);
+        return Shortcuts(
+            debugLabel: "petrinet_editor_shortcuts",
+            shortcuts: {
+                singleActivatorFromString("p")! : EditorPlaceIntent(PetrinetEditorInserts.place, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+                singleActivatorFromString("t")! : EditorPlaceIntent(PetrinetEditorInserts.transition, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+                singleActivatorFromString("a")! : EditorPlaceIntent(PetrinetEditorInserts.arcWeighted, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+                singleActivatorFromString("n")! : EditorPlaceIntent(PetrinetEditorInserts.arcNot, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+                singleActivatorFromString("r")! : EditorPlaceIntent(PetrinetEditorInserts.arcReset, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+            },
+            child: Actions(
+                actions: {
+                    EditorPlaceIntent: CallbackAction<EditorPlaceIntent>(onInvoke: (intent) {
+                        switch (intent.insert){
+                            case PetrinetEditorInserts.place:
+                                _petrinet.addPlace(dx: intent.pos.dx, dy: intent.pos.dy);
+                            break;
+                            case PetrinetEditorInserts.transition:
+                                _petrinet.addTransition(dx: intent.pos.dx, dy: intent.pos.dy);
+                            break;
+                            // case PetrinetEditorInserts.arcWeighted:
+                            //     _petrinet.addArcWeighted();
+                            // break;
+                            // case PetrinetEditorInserts.arcNot:
+                            //     _petrinet.addArcWeighted();
+                            // break;
+                            // case PetrinetEditorInserts.arcReset:
                             
-                            return DragTarget<PetrinetNode>(
-                                builder: (context, candidateData, rejectedData) {
-                                    return Container(
-                                        height: _size.height,
-                                        width: _size.width,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 1 / scale,
-                                                color: Colors.amber,
-                                            )
+                            default:
+                            break;
+                        }
+
+                        setState(() {});
+                    },)
+                },
+                child: Focus(
+                    debugLabel: "petrinet_editor_focus",
+                    child: Builder(
+                        builder: (context) {
+                            FocusNode editorFocus = Focus.of(context); 
+                            
+                            return SizedBox(
+                                child: MouseRegion(
+                                    onEnter: (event) {
+                                        editorFocus.requestFocus();
+                                        //   print(debugDescribeFocusTree());
+                                    },
+                                    onExit: (event) {
+                                        if(editorFocus.hasFocus){
+                                            editorFocus.unfocus();
+                                        }
+                                        //   print(debugDescribeFocusTree());
+                                    },
+                                    onHover: (event) {
+                                        _lastMousePosOnKeypress = event.position;
+                                        setState(() {});
+                                    },
+                                    child: Stack(children: [
+                                        InteractiveViewer(
+                                            child: LayoutBuilder(
+                                                builder: (context, constraints) {
+                                                    var scale = _transformationController.value.storage[0];
+                                                    var widgets = _buildNodes(scale);
+                                                    _editorRenderBox = context.findRenderObject() as RenderBox?;
+                                                                    
+                                                    //   print(debugDescribeFocusTree());
+                                                    
+                                                    return DragTarget<PetrinetNode>(
+                                                        builder: (context, candidateData, rejectedData) {
+                                                            return Container(
+                                                                height: _size.height,
+                                                                width: _size.width,
+                                                                decoration: BoxDecoration(
+                                                                    border: Border.all(
+                                                                        width: 1 / scale,
+                                                                        color: Colors.amber,
+                                                                    )
+                                                                ),
+                                                                child: Stack(children: widgets),
+                                                            );
+                                                        },
+                                                        onAcceptWithDetails: (details) {
+                                                            final Offset? localOffset = _editorRenderBox?.globalToLocal(details.offset);
+                                                            if(localOffset == null) return;
+                                                            
+                                                            setState(() {
+                                                                details.data.offsetX = localOffset.dx;
+                                                                details.data.offsetY = localOffset.dy;
+                                                            });
+                                                        },
+                                                    );
+                                                }
+                                            ),
+                                            onInteractionStart: (details) {
+                                                setState(() {});
+                                            },
+                                            onInteractionEnd: (details) {
+                                                setState(() {});
+                                            },
+                                            transformationController: _transformationController,
+                                            boundaryMargin: EdgeInsets.all(_size.longestSide),
+                                            constrained: false,
+                                            clipBehavior: Clip.hardEdge,
+                                            interactionEndFrictionCoefficient: double.minPositive,
+                                            panEnabled: true,   
+                                            trackpadScrollCausesScale: false,
+                                            minScale: 1/20,
+                                            maxScale: 3,
                                         ),
-                                        child: Stack(children: widgets),
-                                    );
-                                },
-                                onAcceptWithDetails: (details) {
-                                    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-                                    final Offset? localOffset = renderBox?.globalToLocal(details.offset);
-                                    if(localOffset == null) return;
-                                    
-                                    setState(() {
-                                        details.data.offsetX = localOffset.dx;
-                                        details.data.offsetY = localOffset.dy;
-                                    });
-                                },
+                        
+                                        Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: Row(
+                                                children: [
+                                                    IconButton(icon: const Icon(Icons.home), onPressed: () {
+                                                        _transformationController.value = Matrix4.identity();
+                                                    },),
+                                                ],
+                                                mainAxisAlignment: MainAxisAlignment.end
+                                            ),
+                                        )
+                                    ]),
+                                ),
                             );
                         }
                     ),
-                    transformationController: _transformationController,
-                    boundaryMargin: EdgeInsets.all(_size.longestSide),
-                    constrained: false,
-                    clipBehavior: Clip.hardEdge,
-                    interactionEndFrictionCoefficient: double.minPositive,
-                    panEnabled: true,   
-                    trackpadScrollCausesScale: false,
-                    minScale: 1/20,
-                    maxScale: 3,
-                ), 
-                focusNode: _editorFocus,
-            ),),
-
-            Align(
-                alignment: Alignment.bottomRight,
-                child: Row(
-                    children: [
-                        IconButton(icon: const Icon(Icons.home), onPressed: () {
-                            _transformationController.value = Matrix4.identity();
-                        },),
-                    ],
-                    mainAxisAlignment: MainAxisAlignment.end
-                ),
-            )
-        ]);    
+                )
+            ),
+        );
     }
 
     List<Widget> _buildNodes(double scale){
@@ -127,7 +210,7 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
 
         // transitions
         for(var transition in _petrinet.transitions){
-            var widget = TransitionWidget(transition.name, "${transition.inputEvt?.toString() ?? ''}", transition.delay);
+            var widget = TransitionWidget(transition.name, transition.inputEvt?.toString() ?? "", transition.delay);
             list.add(widget);
             nodes.add(transition);
         }
