@@ -72,6 +72,7 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
     RenderBox? _editorRenderBox;
 
     // actions
+    String? _editorMessage;
     PetrinetEditorActions? _executingAction;
 
     // arc placing
@@ -115,9 +116,11 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                     EditorInsertArcIntent: CallbackAction<EditorInsertArcIntent>(onInvoke: (intent) {
                         _arcType = intent.type;
                         _executingAction = PetrinetEditorActions.placingArc;
+                        _editorMessage = "Inserting arc ${intent.type.name}";
                         return null;
                     },),
                     EditorResetActionsIntent: CallbackAction<EditorResetActionsIntent>(onInvoke: (intent) {
+                        _editorMessage = null;
                         _executingAction = null;
                         _arcAnchoredTo = null;
                         _arcType = null;
@@ -205,9 +208,7 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                                             child: Row(
                                                 children: [
                                                     Text(
-                                                        _executingAction != null ?
-                                                        "Current action: ${_executingAction?.name}" :
-                                                        "",
+                                                        _editorMessage ?? "",
                                                         style: const TextStyle(color: Colors.amber),
                                                     ),
                                                     IconButton(icon: const Icon(Icons.home), onPressed: () {
@@ -232,50 +233,12 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
         List<Widget> widgets = [];
         List<PetrinetNode> nodes = [];
 
-        Size nodeSize = const Size(100, 100);
-
-        // places
-        for(var place in _petrinet.places){
-            var widget = PlaceWidget(place.name, place.init, nodeSize);
-            list.add(widget);
-            nodes.add(place);
-        }
-
-        // transitions
-        for(var transition in _petrinet.transitions){
-            var widget = TransitionWidget(transition.name, transition.inputEvt?.toString() ?? "", transition.delay, nodeSize);
-            list.add(widget);
-            nodes.add(transition);
-        }
-        
-        for(var i = 0; i < list.length; i++){
-            widgets.add(
-                Positioned(
-                    top: nodes[i].offsetY,
-                    left: nodes[i].offsetX,
-                    child: Draggable<PetrinetNode>(
-                        maxSimultaneousDrags: 1,
-                        childWhenDragging: Opacity(
-                            opacity: .6,
-                            child: list[i],
-                        ),
-                        dragAnchorStrategy: pointerDragAnchorStrategy, 
-                        // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
-                        feedback: Transform.scale(scale: scale, child: list[i], alignment: Alignment.topLeft),
-                        data: nodes[i],
-                        child: Listener(
-                            child: list[i],
-                            onPointerDown: (event) => _onNodeClick(event, nodes[i]),
-                        )
-                    ),
-                )
-            );
-        }
+        Size nodeSize = const Size(100, 200);
 
         // arcs
         for(var arc in _petrinet.arcs){
             Offset from, to;
-            var centerOffset = Offset(nodeSize.width / 2, nodeSize.height);
+            var centerOffset = Offset(nodeSize.width / 2, nodeSize.height / 2);
 
             from = centerOffset + Offset(_petrinet.places[arc.place].offsetX, _petrinet.places[arc.place].offsetY);
             to = centerOffset + Offset(_petrinet.transitions[arc.transition].offsetX, _petrinet.transitions[arc.transition].offsetY);
@@ -294,7 +257,73 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                         type: arc.type, 
                         from: from, 
                         to: to,
-                        width: 5,
+                        thickness: 5,
+                        offset: nodeSize.shortestSide / 2 + 25,
+                    ),
+                )
+            );
+        }
+
+        // places
+        for(var place in _petrinet.places){
+            var widget = PlaceWidget(place.name, nodeSize, tokens: place.init);
+            list.add(widget);
+            nodes.add(place);
+        }
+
+        // transitions
+        for(var i = 0; i < _petrinet.transitions.length; i++){
+            String? inputEvt;
+            int? inputindex = _petrinet.transitions[i].input;
+            
+            if(inputindex != null){
+                switch(_petrinet.transitions[i].inputEvt){
+                    case PetrinetInputEvt.pos:
+                        inputEvt = "${_petrinet.inputsNames[inputindex]} ↿";
+                        break;
+                    case PetrinetInputEvt.neg:
+                        inputEvt = "${_petrinet.inputsNames[inputindex]} ⇂";
+                        break;
+                    case PetrinetInputEvt.any:
+                        // inputEvt = "${_petrinet.inputsNames[inputindex]} ⥮";
+                        inputEvt = "${_petrinet.inputsNames[inputindex]} ↿ ⇂";
+                        break;
+
+                    default:
+                    break;
+                }
+            }
+            
+            var widget = TransitionWidget(
+                _petrinet.transitions[i].name, 
+                nodeSize, 
+                inputEvt: _petrinet.transitions[i].inputEvt?.name ?? "", 
+                delay: _petrinet.transitions[i].delay
+            );
+            list.add(widget);
+            nodes.add(_petrinet.transitions[i]);
+        }
+        
+        for(var i = 0; i < list.length; i++){
+            widgets.add(
+                Positioned(
+                    top: nodes[i].offsetY,
+                    left: nodes[i].offsetX,
+                    child: Draggable<PetrinetNode>(
+                        hitTestBehavior: HitTestBehavior.opaque,
+                        maxSimultaneousDrags: 1,
+                        childWhenDragging: Opacity(
+                            opacity: .6,
+                            child: list[i],
+                        ),
+                        dragAnchorStrategy: pointerDragAnchorStrategy, 
+                        // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
+                        feedback: Transform.scale(scale: scale, child: list[i], alignment: Alignment.topLeft),
+                        data: nodes[i],
+                        child: Listener(
+                            child: list[i],
+                            onPointerDown: (event) => _onNodeClick(event, nodes[i]),
+                        )
                     ),
                 )
             );
@@ -336,12 +365,17 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                     transition = _petrinet.transitions.indexOf(_arcAnchoredTo as PetrinetTransition);
                 }
 
-                _petrinet.addArc(_arcType!, place, transition, placeToTransition);
+                try{
+                    _petrinet.addArc(_arcType!, place, transition, placeToTransition);
+                }
+                finally{
+                    _editorMessage = null;
+                    _arcAnchoredTo = null;
+                    _arcType = null;
+                    _executingAction = null;
+                    setState(() {});
+                }
 
-                _arcAnchoredTo = null;
-                _arcType = null;
-                _executingAction = null;
-                setState(() {});
             break;
 
             default:

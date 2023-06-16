@@ -94,10 +94,10 @@ class Petrinet{
         }
 
         if(type == PetrinetArcType.weighted){
-            arcs.add(PetrinetArc(PetrinetArcType.weighted, place, transition, placeToTransition, 1));
+            arcs.add(PetrinetArc(type, place, transition, placeToTransition, 1));
         }
         else{
-            arcs.add(PetrinetArc(PetrinetArcType.reset, place, transition, null, null));
+            arcs.add(PetrinetArc(type, place, transition, null, null));
         }
     }
 
