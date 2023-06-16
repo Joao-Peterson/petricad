@@ -5,11 +5,13 @@ class TransitionWidget extends StatelessWidget {
     final String name;
     final String inputEvt;
     final int delay;
+    final Size size;
 
     const TransitionWidget(
         this.name,
         this.inputEvt,
         this.delay,
+        this.size,
         {Key? key}
     ) : super(key: key);
 
@@ -20,10 +22,10 @@ class TransitionWidget extends StatelessWidget {
                 children: [
                     Text(name, style: const TextStyle(fontSize: 30)),
                     const Padding(padding: EdgeInsets.all(10)),
-                    const SizedBox(
-                        width: 100, 
-                        height: 100,
-                        child: VerticalDivider(
+                    SizedBox(
+                        width: size.width, 
+                        height: size.height,
+                        child: const VerticalDivider(
                             color: Colors.white,
                             thickness: 20,
                         ),

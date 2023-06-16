@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:petricad/src/config.dart';
+// import 'package:petricad/src/config.dart';
+// import 'package:provider/provider.dart';
 import 'package:petricad/src/petrinet.dart';
 import 'package:petricad/src/shortcut_helper.dart';
-import 'package:provider/provider.dart';
+import 'package:petricad/widgets/arc_widget.dart';
 import 'place_widget.dart';
 import 'transition_widget.dart';
+
+enum PetrinetEditorActions{
+    placingArc
+}
 
 enum PetrinetEditorInserts{
     place,
     transition,
-    arcWeighted,
-    arcNot,
-    arcReset
 }
 
 // editor place intent
@@ -20,6 +21,17 @@ class EditorPlaceIntent extends Intent{
     final PetrinetEditorInserts insert;
     final Offset pos;
     const EditorPlaceIntent(this.insert, this.pos);
+}
+
+// arc place intent
+class EditorInsertArcIntent extends Intent{
+    final PetrinetArcType type;
+    const EditorInsertArcIntent(this.type);
+}
+
+// editor reset actions intent
+class EditorResetActionsIntent extends Intent{
+    const EditorResetActionsIntent();
 }
 
 class Node{
@@ -50,12 +62,21 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
     // final _zoomSensibility = 1.0;
     // final _zoomReversed = Provider.of<ConfigProvider>(context).getConfig("mouse.editorZoomReversed") ?? false;
 
+    // data
     final _size = const Size(5000, 5000);
     final _transformationController = TransformationController();
     late Petrinet _petrinet;
 
+    // mouse track
     var _lastMousePosOnKeypress = const Offset(0, 0);
     RenderBox? _editorRenderBox;
+
+    // actions
+    PetrinetEditorActions? _executingAction;
+
+    // arc placing
+    PetrinetArcType? _arcType;
+    PetrinetNode? _arcAnchoredTo;
 
     @override
     void initState() {
@@ -71,9 +92,10 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
             shortcuts: {
                 singleActivatorFromString("p")! : EditorPlaceIntent(PetrinetEditorInserts.place, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
                 singleActivatorFromString("t")! : EditorPlaceIntent(PetrinetEditorInserts.transition, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
-                singleActivatorFromString("a")! : EditorPlaceIntent(PetrinetEditorInserts.arcWeighted, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
-                singleActivatorFromString("n")! : EditorPlaceIntent(PetrinetEditorInserts.arcNot, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
-                singleActivatorFromString("r")! : EditorPlaceIntent(PetrinetEditorInserts.arcReset, _editorRenderBox?.globalToLocal(_lastMousePosOnKeypress) ?? const Offset(0, 0)),
+                singleActivatorFromString("a")! : const EditorInsertArcIntent(PetrinetArcType.weighted),
+                singleActivatorFromString("n")! : const EditorInsertArcIntent(PetrinetArcType.negated),
+                singleActivatorFromString("r")! : const EditorInsertArcIntent(PetrinetArcType.reset),
+                singleActivatorFromString("esc")! : const EditorResetActionsIntent(),
             },
             child: Actions(
                 actions: {
@@ -85,19 +107,21 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                             case PetrinetEditorInserts.transition:
                                 _petrinet.addTransition(dx: intent.pos.dx, dy: intent.pos.dy);
                             break;
-                            // case PetrinetEditorInserts.arcWeighted:
-                            //     _petrinet.addArcWeighted();
-                            // break;
-                            // case PetrinetEditorInserts.arcNot:
-                            //     _petrinet.addArcWeighted();
-                            // break;
-                            // case PetrinetEditorInserts.arcReset:
-                            
-                            default:
-                            break;
                         }
 
                         setState(() {});
+                        return null;
+                    },),
+                    EditorInsertArcIntent: CallbackAction<EditorInsertArcIntent>(onInvoke: (intent) {
+                        _arcType = intent.type;
+                        _executingAction = PetrinetEditorActions.placingArc;
+                        return null;
+                    },),
+                    EditorResetActionsIntent: CallbackAction<EditorResetActionsIntent>(onInvoke: (intent) {
+                        _executingAction = null;
+                        _arcAnchoredTo = null;
+                        _arcType = null;
+                        return null;
                     },)
                 },
                 child: Focus(
@@ -175,10 +199,17 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                                             maxScale: 3,
                                         ),
                         
+                                        // widgets tray overlay
                                         Align(
                                             alignment: Alignment.bottomRight,
                                             child: Row(
                                                 children: [
+                                                    Text(
+                                                        _executingAction != null ?
+                                                        "Current action: ${_executingAction?.name}" :
+                                                        "",
+                                                        style: const TextStyle(color: Colors.amber),
+                                                    ),
                                                     IconButton(icon: const Icon(Icons.home), onPressed: () {
                                                         _transformationController.value = Matrix4.identity();
                                                     },),
@@ -201,16 +232,18 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
         List<Widget> widgets = [];
         List<PetrinetNode> nodes = [];
 
+        Size nodeSize = const Size(100, 100);
+
         // places
         for(var place in _petrinet.places){
-            var widget = PlaceWidget(place.name, place.init);
+            var widget = PlaceWidget(place.name, place.init, nodeSize);
             list.add(widget);
             nodes.add(place);
         }
 
         // transitions
         for(var transition in _petrinet.transitions){
-            var widget = TransitionWidget(transition.name, transition.inputEvt?.toString() ?? "", transition.delay);
+            var widget = TransitionWidget(transition.name, transition.inputEvt?.toString() ?? "", transition.delay, nodeSize);
             list.add(widget);
             nodes.add(transition);
         }
@@ -230,12 +263,89 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                         // needed to tranform feed back because it would not do it itself inside the tranformed sizedbox 
                         feedback: Transform.scale(scale: scale, child: list[i], alignment: Alignment.topLeft),
                         data: nodes[i],
-                        child: list[i],
+                        child: Listener(
+                            child: list[i],
+                            onPointerDown: (event) => _onNodeClick(event, nodes[i]),
+                        )
+                    ),
+                )
+            );
+        }
+
+        // arcs
+        for(var arc in _petrinet.arcs){
+            Offset from, to;
+            var centerOffset = Offset(nodeSize.width / 2, nodeSize.height);
+
+            from = centerOffset + Offset(_petrinet.places[arc.place].offsetX, _petrinet.places[arc.place].offsetY);
+            to = centerOffset + Offset(_petrinet.transitions[arc.transition].offsetX, _petrinet.transitions[arc.transition].offsetY);
+            
+            if(arc.placeToTransition != null && !(arc.placeToTransition!)){         // if inverted
+                var swap = from;
+                from = to;
+                to = swap;
+            }
+            
+            widgets.add(
+                Positioned(
+                    top: 0,
+                    left: 0,
+                    child: ArcWidget(
+                        type: arc.type, 
+                        from: from, 
+                        to: to,
+                        width: 5,
                     ),
                 )
             );
         }
 
         return widgets;
+    }
+
+    void _onNodeClick(PointerDownEvent event, PetrinetNode node){
+        switch(_executingAction){
+            case PetrinetEditorActions.placingArc:                                  // arc placing
+                if(_arcAnchoredTo == null){                                         // first anchor to node
+                    _arcAnchoredTo = node;
+                    return;
+                }
+
+                if(_arcAnchoredTo == node){                                         // self arc
+                    return;
+                }
+
+                if(                                                                 // to same tipe
+                    (_arcAnchoredTo is PetrinetPlace && node is PetrinetPlace) ||
+                    (_arcAnchoredTo is PetrinetTransition && node is PetrinetTransition)
+                ){
+                    return;
+                }
+
+                bool? placeToTransition;
+                int place, transition;
+
+                if(_arcAnchoredTo is PetrinetPlace){                                // place to transition
+                    placeToTransition = true;
+                    place = _petrinet.places.indexOf(_arcAnchoredTo as PetrinetPlace);
+                    transition = _petrinet.transitions.indexOf(node as PetrinetTransition);
+                }
+                else{                                                               // transition to place
+                    placeToTransition = false;
+                    place = _petrinet.places.indexOf(node as PetrinetPlace);
+                    transition = _petrinet.transitions.indexOf(_arcAnchoredTo as PetrinetTransition);
+                }
+
+                _petrinet.addArc(_arcType!, place, transition, placeToTransition);
+
+                _arcAnchoredTo = null;
+                _arcType = null;
+                _executingAction = null;
+                setState(() {});
+            break;
+
+            default:
+                return;
+        }
     }
 }

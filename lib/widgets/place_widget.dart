@@ -4,10 +4,12 @@ class PlaceWidget extends StatelessWidget {
 
     final String name;
     final int init;
+    final Size size;
 
     const PlaceWidget(
         this.name,
         this.init,
+        this.size,
         {Key? key}
     ) : super(key: key);
 
@@ -19,8 +21,8 @@ class PlaceWidget extends StatelessWidget {
                     Text(name, style: const TextStyle(fontSize: 30)),
                     const Padding(padding: EdgeInsets.all(10)),
                     Container(
-                        width: 100, 
-                        height: 100,
+                        width: size.width, 
+                        height: size.height,
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(

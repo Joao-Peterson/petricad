@@ -85,7 +85,7 @@ class Petrinet{
         _transitionIndex++;
     }
 
-    void addArcWeighted(int place, int transition, bool placeToTransition){
+    void addArc(PetrinetArcType type, int place, int transition, bool? placeToTransition){
         if(place >= places.length){
             throw Exception("Place index out of bounds");
         }
@@ -93,29 +93,12 @@ class Petrinet{
             throw Exception("Transition index out of bounds");
         }
 
-        arcs.add(PetrinetArc(PetrinetArcType.weighted, place, transition, placeToTransition, 1));
-    }
-
-    void addArcNegated(int place, int transition){
-        if(place >= places.length){
-            throw Exception("Place index out of bounds");
+        if(type == PetrinetArcType.weighted){
+            arcs.add(PetrinetArc(PetrinetArcType.weighted, place, transition, placeToTransition, 1));
         }
-        if(transition >= transitions.length){
-            throw Exception("Transition index out of bounds");
+        else{
+            arcs.add(PetrinetArc(PetrinetArcType.reset, place, transition, null, null));
         }
-
-        arcs.add(PetrinetArc(PetrinetArcType.negated, place, transition, null, null));
-    }
-
-    void addArcReset(int place, int transition){
-        if(place >= places.length){
-            throw Exception("Place index out of bounds");
-        }
-        if(transition >= transitions.length){
-            throw Exception("Transition index out of bounds");
-        }
-
-        arcs.add(PetrinetArc(PetrinetArcType.reset, place, transition, null, null));
     }
 
     void addInput(){
