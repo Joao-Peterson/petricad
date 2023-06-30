@@ -80,6 +80,7 @@ class Petrinet{
         _placeIndex++;
     }
 
+
     void addTransition({double? dx, double? dy}){
         transitions.add(PetrinetTransition("t$_transitionIndex", dx ?? 0, dy ?? 0, 0, null, null));
         _transitionIndex++;
@@ -109,5 +110,37 @@ class Petrinet{
     void addOutput(){
         outputNames.add("q$_outputIndex");
         _outputIndex++;
+    }
+
+    void removeNode(PetrinetNode node){
+        switch(node.runtimeType){
+            case PetrinetPlace:                                                     // place
+                var index = places.indexOf(node as PetrinetPlace);
+                places.removeAt(index);                                             // remove place
+
+                arcs.removeWhere((element) => element.place == index);              // remove arcs
+                for(var arc in arcs){                                               // adjust other arcs references    
+                    if(arc.place > index){
+                        arc.place--;
+                    }
+                }
+
+                _placeIndex--;
+            break;
+
+            case PetrinetTransition:                                                // transition
+                var index = transitions.indexOf(node as PetrinetTransition);
+                transitions.removeAt(index);
+
+                arcs.removeWhere((element) => element.transition == index);
+                for(var arc in arcs){                                               // adjust other arcs references    
+                    if(arc.transition > index){
+                        arc.transition--;
+                    }
+                }
+
+                _transitionIndex--;
+            break;
+        }
     }
 }

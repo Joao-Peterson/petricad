@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petricad/widgets/petrinet_editor.dart';
+import 'package:petricad/widgets/petrinet_editor/petrinet_editor.dart';
 
 class Editor extends StatelessWidget {
 
