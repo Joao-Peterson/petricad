@@ -165,7 +165,6 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                                                 },
                                                 onHover: (event) {
                                                     _lastMousePosOnKeypress = event.position;
-                                                    setState(() {});
                                                 },
                                                 child: Container(
                                                     height: _size.height,
@@ -239,8 +238,7 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
 
         Size nodeSize = const Size(100, 200);
 
-        // arcs
-        for(var arc in _petrinet.arcs){
+        for(var arc in _petrinet.arcs){                                             // arcs
             Offset from, to;
             var centerOffset = Offset(nodeSize.width / 2, nodeSize.height / 2);
 
@@ -257,26 +255,33 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                 Positioned(
                     top: 0,
                     left: 0,
-                    child: ArcWidget(
-                        type: arc.type, 
-                        from: from, 
-                        to: to,
-                        thickness: 5,
-                        offset: nodeSize.shortestSide / 2 + 25,
+                    child: Container(
+                        decoration: BoxDecoration(border: Border.all(width: 3, color: Colors.pink)),
+                        constraints: BoxConstraints.loose(const Size.square(5000)),
+                        child: Listener(
+                            child: ArcWidget(
+                                type: arc.type, 
+                                from: from, 
+                                to: to,
+                                thickness: 5,
+                                offset: nodeSize.longestSide / 2,
+                                hitTestRadius: nodeSize.shortestSide / 2,
+                            ),
+                            behavior: HitTestBehavior.deferToChild,
+                            onPointerUp: (event) => _onArcClick(arc),
+                        ),
                     ),
                 )
             );
         }
 
-        // places
-        for(var place in _petrinet.places){
+        for(var place in _petrinet.places){                                         // places
             var widget = PlaceWidget(place.name, nodeSize, tokens: place.init);
             list.add(widget);
             nodes.add(place);
         }
 
-        // transitions
-        for(var i = 0; i < _petrinet.transitions.length; i++){
+        for(var i = 0; i < _petrinet.transitions.length; i++){                      // transitions
             String? inputEvt;
             int? inputindex = _petrinet.transitions[i].input;
             
@@ -325,6 +330,7 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
                         feedback: Transform.scale(scale: scale, child: list[i], alignment: Alignment.topLeft),
                         data: nodes[i],
                         child: Listener(
+                            behavior: HitTestBehavior.translucent,
                             child: list[i],
                             onPointerUp: (event) => _onNodeClick(nodes[i]),
                         )
@@ -341,13 +347,24 @@ class _PetrinetEditorState extends State<PetrinetEditor> {
         switch(_executingAction){
             case PetrinetEditorActions.deleting:                                    // delete node
                 _petrinet.removeNode(node);
-                // _executingAction = null;
-                // _editorMessage = null;
-                // setState(() {});
+                setState(() {});
             break;
 
             case PetrinetEditorActions.placingArc:                                  // arc placing
                 _placingArc(node);
+            break;
+
+            default:
+                return;
+        }
+    }
+
+    // logic node onclick for arc widgets
+    void _onArcClick(PetrinetArc arc){
+        switch(_executingAction){
+            case PetrinetEditorActions.deleting:                                    // delete arc
+                _petrinet.removeArc(arc);
+                setState(() {});
             break;
 
             default:

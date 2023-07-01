@@ -143,4 +143,8 @@ class Petrinet{
             break;
         }
     }
+
+    void removeArc(PetrinetArc arc){
+        arcs.remove(arc);
+    }
 }
